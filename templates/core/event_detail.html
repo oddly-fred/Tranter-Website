@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1>{{ event.title }}</h1>
+    <p class="text-muted">{{ event.date }} | {{ event.location }}</p>
+    <div class="event-content">
+        {{ event.content|safe }}
+    </div>
+</div>
+{% endblock %}

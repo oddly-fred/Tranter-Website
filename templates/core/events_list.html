@@ -1,0 +1,214 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Events{% endblock %}
+{% block meta_description %}Tranter events — upcoming conferences, webinars and workshops on enterprise technology, cybersecurity and digital transformation.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/events.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{# ══════════════ PAGE HERO ══════════════ #}
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="eyebrow green">Tranter Events</div>
+    <h1 class="page-hero-title">Where Enterprise<br><span class="t-green">Technology</span> Meets<br><span class="t-red">Conversation.</span></h1>
+    <p class="page-hero-sub">Conferences, webinars and workshops designed for technology leaders, IT professionals and decision-makers across Africa and beyond.</p>
+  </div>
+</div>
+
+{# ══════════════ FEATURED EVENT — COUNTDOWN ══════════════ #}
+{% if featured %}
+<section class="featured-event-section">
+  <div class="fe-inner">
+
+    {# Left: event info #}
+    <div class="fe-content">
+      <div class="fe-badges">
+        {% if featured.is_online %}
+          <span class="fe-badge online">&#x1F4F9; Virtual Event</span>
+        {% else %}
+          <span class="fe-badge live">&#x1F4CD; In-Person</span>
+        {% endif %}
+        <span class="fe-badge upcoming">Upcoming</span>
+      </div>
+
+      <h2 class="fe-title">{{ featured.title }}</h2>
+      <p class="fe-desc">{{ featured.description|truncatewords:40 }}</p>
+
+      <div class="fe-meta">
+        <div class="fe-meta-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M1 7h14M5 1v4M11 1v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <span>{{ featured.date|date:"l, d F Y" }}</span>
+        </div>
+        <div class="fe-meta-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M8 5v3.5l2.5 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <span>{{ featured.date|date:"g:i A" }} WAT</span>
+        </div>
+        {% if featured.location %}
+        <div class="fe-meta-item">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 1.5C5.51 1.5 3.5 3.51 3.5 6c0 3.75 4.5 8.5 4.5 8.5S12.5 9.75 12.5 6c0-2.49-2.01-4.5-4.5-4.5z" stroke="currentColor" stroke-width="1.4"/>
+            <circle cx="8" cy="6" r="1.5" stroke="currentColor" stroke-width="1.4"/>
+          </svg>
+          <span>{{ featured.location }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="fe-actions">
+        {% if featured.registration_url %}
+          <a href="{{ featured.registration_url }}" target="_blank" rel="noopener" class="btn-register">
+            Register Now &#x2192;
+          </a>
+        {% endif %}
+        <a href="{% url 'event_detail' slug=featured.slug %}" class="btn-learn-more">
+          Learn More
+        </a>
+      </div>
+    </div>
+
+    {# Right: countdown clock #}
+    <div class="fe-countdown-wrap">
+      <div class="countdown-card" id="countdownCard"
+           data-target="{{ countdown_data.target_iso }}"
+           data-event-id="{{ featured.pk }}">
+
+        <div class="cd-label">Event starts in</div>
+
+        <div class="cd-clock">
+          <div class="cd-unit">
+            <div class="cd-num" id="cd-days">{{ countdown_data.days }}</div>
+            <div class="cd-unit-label">Days</div>
+          </div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit">
+            <div class="cd-num" id="cd-hours">{{ countdown_data.hours|stringformat:"02d" }}</div>
+            <div class="cd-unit-label">Hours</div>
+          </div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit">
+            <div class="cd-num" id="cd-mins">{{ countdown_data.minutes|stringformat:"02d" }}</div>
+            <div class="cd-unit-label">Minutes</div>
+          </div>
+          <div class="cd-sep">:</div>
+          <div class="cd-unit">
+            <div class="cd-num" id="cd-secs">{{ countdown_data.seconds|stringformat:"02d" }}</div>
+            <div class="cd-unit-label">Seconds</div>
+          </div>
+        </div>
+
+        <div class="cd-date-line">{{ featured.date|date:"d M Y · g:i A" }} WAT</div>
+
+        {% if featured.cover_image %}
+          <div class="cd-thumb">
+            <img src="{{ featured.cover_image.url }}" alt="{{ featured.title }}">
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endif %}
+
+
+{# ══════════════ UPCOMING EVENTS GRID ══════════════ #}
+{% if upcoming %}
+<section class="section" id="upcoming">
+  <div class="events-section-hdr">
+    <div class="eyebrow green">On the Calendar</div>
+    <h2 class="section-title">Upcoming Events</h2>
+  </div>
+
+  <div class="upcoming-grid">
+    {% for event in upcoming %}
+    <a href="{% url 'event_detail' slug=event.slug %}" class="upcoming-card">
+      <div class="uc-img">
+        {% if event.cover_image %}
+          <img src="{{ event.cover_image.url }}" alt="{{ event.title }}">
+        {% else %}
+          <div class="uc-img-placeholder">
+            <span>&#x1F4C5;</span>
+          </div>
+        {% endif %}
+        <div class="uc-overlay"></div>
+        <div class="uc-badges">
+          {% if event.is_online %}
+            <span class="uc-badge">Virtual</span>
+          {% else %}
+            <span class="uc-badge">In-Person</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="uc-body">
+        <div class="uc-date">{{ event.date|date:"d M Y" }}</div>
+        <h3 class="uc-title">{{ event.title }}</h3>
+        <p class="uc-desc">{{ event.description|truncatewords:20 }}</p>
+        <div class="uc-footer">
+          {% if event.location %}<span class="uc-loc">&#x1F4CD; {{ event.location }}</span>{% endif %}
+          <span class="uc-cta">Register &#x2192;</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+
+{# ══════════════ PAST EVENTS ══════════════ #}
+{% if past %}
+<section class="section bg-off" id="past">
+  <div class="events-section-hdr">
+    <div class="eyebrow red">Archive</div>
+    <h2 class="section-title">Past Events</h2>
+  </div>
+
+  <div class="past-grid">
+    {% for event in past %}
+    <a href="{% url 'event_detail' slug=event.slug %}" class="past-card">
+      <div class="pc-img">
+        {% if event.cover_image %}
+          <img src="{{ event.cover_image.url }}" alt="{{ event.title }}">
+        {% else %}
+          <div class="pc-img-placeholder"><span>&#x1F3A5;</span></div>
+        {% endif %}
+        {% if event.video_url %}
+          <div class="pc-play-badge">&#x25B6; Watch Recording</div>
+        {% endif %}
+      </div>
+      <div class="pc-body">
+        <span class="pc-date">{{ event.date|date:"d M Y" }}</span>
+        <h3 class="pc-title">{{ event.title }}</h3>
+        <p class="pc-desc">{{ event.description|truncatewords:18 }}</p>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{# Empty state #}
+{% if not featured and not upcoming and not past %}
+<div class="events-empty">
+  <div class="ee-icon">&#x1F4C5;</div>
+  <h2>No Events Yet</h2>
+  <p>Check back soon — events will appear here once they're published.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/events.js' %}"></script>
+{% endblock %}
