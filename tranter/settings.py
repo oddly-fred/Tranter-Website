@@ -47,11 +47,16 @@ INSTALLED_APPS = [
     'core',
     'dashboard',
     'integrations',
+    'geo_content',
+    'rest_framework',
+    'django_filters',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'geo_content.middleware.GeoDetectionMiddleware',  # Geo detection (after session, before common)
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -61,20 +66,29 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'tranter.urls'
 
+
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                'core.context_processors.region_context',
+                'dashboard.context_processors.dashboard_context',
+                
             ],
         },
     },
+]
+
+# Then you can append your own processors
+TEMPLATES[0]["OPTIONS"]["context_processors"] += [
+    "core.context_processors.global_settings",
 ]
 
 WSGI_APPLICATION = 'tranter.wsgi.application'
@@ -158,3 +172,44 @@ LOGGING = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# ═══════════════════════════════════════════════════
+# GEO CONTENT MODULE SETTINGS
+# ═══════════════════════════════════════════════════
+
+# GeoIP2 database path (download from MaxMind)
+# https://dev.maxmind.com/geoip/geolite2-free-geolocation-data
+GEOIP_PATH = BASE_DIR / 'geoip'
+
+# Test IP for development (simulates specific country)
+# Examples: '102.88.0.0' (Nigeria), '8.8.8.8' (US)
+GEOIP_TEST_IP = env('GEOIP_TEST_IP', default=None)
+
+# Enable/disable GeoIP detection
+GEOIP_ENABLED = env('GEOIP_ENABLED', default=True)
+
+# Default country when detection fails
+GEO_DEFAULT_COUNTRY = 'NG'
+
+# Valid regions for manual switching
+GEO_VALID_REGIONS = ['NG', 'GLOBAL']
+
+# Add debug headers to responses (only for development)
+GEO_DEBUG_HEADERS = env('GEO_DEBUG_HEADERS', default=DEBUG)
+
+# Cache timeout for content blocks (in seconds)
+GEO_CONTENT_CACHE_TIMEOUT = 3600  # 1 hour
+
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+LOGIN_URL = '/dashboard/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/dashboard/login/'

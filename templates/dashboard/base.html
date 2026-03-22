@@ -1,0 +1,993 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Tranter AI Command Center{% endblock %}</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        :root {
+            --primary: #048042;
+            --primary-light: #05a855;
+            --primary-dark: #036835;
+            --accent: #fbbf24;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --radius: 16px;
+        }
+        
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif; 
+            background: var(--bg); 
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Layout */
+        .layout { 
+            display: flex; 
+            min-height: 100vh; 
+        }
+
+        /* Sidebar */
+        .sidebar { 
+            width: 260px; 
+            background: var(--card); 
+            border-right: 1px solid var(--border); 
+            padding: 1.5rem; 
+            position: fixed; 
+            height: 100vh; 
+            overflow-y: auto; 
+        }
+
+        .logo { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: var(--primary); 
+            margin-bottom: 2rem; 
+        }
+
+        .nav-link { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            padding: 0.75rem 1rem; 
+            border-radius: 8px; 
+            color: var(--text); 
+            text-decoration: none; 
+            margin-bottom: 0.25rem; 
+            transition: all 0.2s; 
+        }
+
+        .nav-link:hover, .nav-link.active { 
+            background: var(--primary); 
+            color: white; 
+        }
+
+        .nav-icon { 
+            font-size: 1.25rem; 
+        }
+
+        /* Main Content */
+        .main { 
+            flex: 1; 
+            margin-left: 260px; 
+        }
+
+        .main.with-ai { 
+            margin-right: 400px; 
+        }
+
+        /* Topbar */
+        .topbar { 
+            background: var(--card); 
+            border-bottom: 1px solid var(--border); 
+            padding: 1rem 2rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 10; 
+        }
+
+        .content { 
+            padding: 2rem; 
+        }
+
+        /* Avatar */
+        .avatar { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            background: var(--primary); 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 600; 
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        /* Buttons */
+        .btn { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            padding: 0.625rem 1.25rem; 
+            border-radius: 8px; 
+            font-weight: 500; 
+            cursor: pointer; 
+            border: none; 
+            transition: all 0.2s; 
+            text-decoration: none;
+            font-size: 0.9375rem;
+        }
+
+        .btn-primary { 
+            background: var(--primary); 
+            color: white; 
+        }
+
+        .btn-primary:hover { 
+            background: var(--primary-light); 
+        }
+
+        .btn-secondary { 
+            background: var(--bg); 
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-sm { 
+            padding: 0.375rem 0.75rem; 
+            font-size: 0.875rem; 
+        }
+
+        /* Form Elements */
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(4, 128, 66, 0.1);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: var(--bg);
+            cursor: pointer;
+            font-size: 1.25rem;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e2e8f0;
+            color: var(--text);
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-in_progress { background: #dbeafe; color: #1e40af; }
+        .badge-review { background: #e9d5ff; color: #6b21a8; }
+        .badge-done { background: #d1fae5; color: #065f46; }
+        .badge-low { background: #f1f5f9; color: #475569; }
+        .badge-medium { background: #dbeafe; color: #1e40af; }
+        .badge-high { background: #fed7aa; color: #c2410c; }
+        .badge-urgent { background: #fee2e2; color: #b91c1c; }
+
+        /* Utility Classes */
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
+        
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        .mt-4 { margin-top: 2rem; }
+        
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        .mb-4 { margin-bottom: 2rem; }
+        
+        .p-1 { padding: 0.5rem; }
+        .p-2 { padding: 1rem; }
+        .p-3 { padding: 1.5rem; }
+        .p-4 { padding: 2rem; }
+
+        /* Alerts/Messages */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9375rem;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        /* Loading State */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(4, 128, 66, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            min-width: 200px;
+            display: none;
+            z-index: 100;
+            padding: 0.5rem;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.625rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: var(--text);
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg);
+        }
+
+        /* Enhanced AI Panel Styles */
+        .ai-panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+
+        .ai-panel.minimized {
+            transform: translateX(360px);
+        }
+
+        .ai-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-header-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ai-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #048042 0%, #05a855 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(4, 128, 66, 0.2);
+        }
+
+        .ai-title {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--text);
+        }
+
+        .ai-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+            color: var(--text-light);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .ai-minimize {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: all 0.2s;
+        }
+
+        .ai-minimize:hover {
+            background: var(--bg);
+            transform: scale(1.1);
+        }
+
+        .ai-quick-actions {
+            padding: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            padding: 0.5rem 0.875rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            font-size: 0.8125rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .quick-action-btn:hover {
+            background: #048042;
+            color: white;
+            border-color: #048042;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(4, 128, 66, 0.2);
+        }
+
+        .ai-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            scroll-behavior: smooth;
+        }
+
+        .ai-welcome {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .ai-welcome-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: wave 2s infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(20deg); }
+            75% { transform: rotate(-20deg); }
+        }
+
+        .ai-welcome h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .ai-welcome p {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        .ai-capabilities {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            margin: 1.5rem 0;
+        }
+
+        .ai-capabilities li {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: rgba(4, 128, 66, 0.05);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.9375rem;
+        }
+
+        .ai-tip {
+            background: #fef3c7;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: #92400e;
+            margin-top: 1rem;
+        }
+
+        .ai-tip em {
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        .ai-message {
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-message.user {
+            text-align: right;
+        }
+
+        .ai-message.user .message-bubble {
+            background: linear-gradient(135deg, #048042 0%, #05a855 100%);
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+            padding: 0.875rem 1.125rem;
+            display: inline-block;
+            max-width: 85%;
+            box-shadow: 0 2px 8px rgba(4, 128, 66, 0.2);
+        }
+
+        .ai-message.assistant .message-bubble {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 18px 18px 18px 4px;
+            padding: 0.875rem 1.125rem;
+            display: inline-block;
+            max-width: 85%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        .ai-input-area {
+            padding: 1rem;
+            background: white;
+            border-top: 1px solid var(--border);
+        }
+
+        .ai-input-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .ai-input-wrapper:focus-within {
+            border-color: #048042;
+            box-shadow: 0 0 0 4px rgba(4, 128, 66, 0.1);
+        }
+
+        .ai-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 0.9375rem;
+            padding: 0.5rem;
+            background: transparent;
+        }
+
+        .ai-send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, #048042 0%, #05a855 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .ai-send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(4, 128, 66, 0.3);
+        }
+
+        .ai-suggestions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .suggestion-chip {
+            padding: 0.375rem 0.75rem;
+            background: var(--bg);
+            border-radius: 999px;
+            font-size: 0.8125rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-chip:hover {
+            background: rgba(4, 128, 66, 0.1);
+            color: #048042;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 1rem;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-light);
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 1400px) {
+            .ai-panel {
+                width: 360px;
+            }
+            .main.with-ai {
+                margin-right: 360px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .main {
+                margin-left: 0;
+            }
+            .main.with-ai {
+                margin-right: 0;
+            }
+            .ai-panel {
+                display: none;
+            }
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .content {
+                padding: 1rem;
+            }
+            .topbar {
+                padding: 1rem;
+            }
+            .modal {
+                padding: 1rem;
+            }
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">🤖 Tranter AI</div>
+            <nav>
+                <a href="{% url 'dashboard:index' %}" class="nav-link">
+                    <span class="nav-icon">📊</span> Dashboard
+                </a>
+                <a href="{% url 'dashboard:signal_inbox' %}" class="nav-link">
+                    <span class="nav-icon">📡</span> Signals
+                    {% if unread_signals_count > 0 %}
+                    <span style="background: #ef4444; color: white; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem; margin-left: auto;">
+                        {{ unread_signals_count }}
+                    </span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'dashboard:project_list' %}" class="nav-link">
+                    <span class="nav-icon">📁</span> Projects
+                </a>
+                <a href="{% url 'dashboard:task_list' %}" class="nav-link">
+                    <span class="nav-icon">✅</span> Tasks
+                </a>
+                <a href="{% url 'dashboard:courses' %}" class="nav-link">
+                    <span class="nav-icon">📚</span> Learning
+                </a>
+                <a href="{% url 'dashboard:leaderboard' %}" class="nav-link">
+                    <span class="nav-icon">🏆</span> Leaderboard
+                </a>
+                <a href="{% url 'dashboard:quiz_home' %}" class="nav-link">
+                    <span class="nav-icon">🧠</span> Daily Quiz
+                </a>
+                <a href="{% url 'dashboard:activity' %}" class="nav-link">
+                    <span class="nav-icon">📈</span> Activity
+                </a>
+                <a href="{% url 'dashboard:notifications' %}" class="nav-link">
+                    <span class="nav-icon">🔔</span> Notifications
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main with-ai">
+            <header class="topbar">
+                <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="avatar">
+                        {% if request.user.first_name and request.user.last_name %}
+                            {{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1" }}
+                        {% else %}
+                            {{ request.user.email|slice:":2"|upper }}
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'dashboard:logout' %}" class="btn btn-secondary btn-sm">Logout</a>
+                </div>
+            </header>
+            
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+
+        <!-- AI Panel -->
+        <aside class="ai-panel">
+            <div class="ai-header">
+                <div class="ai-header-content">
+                    <div class="ai-avatar">🤖</div>
+                    <div>
+                        <div class="ai-title">Tranter AI Copilot</div>
+                        <div class="ai-status">
+                            <span class="status-dot"></span>
+                            <span>Online & Ready</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="ai-minimize" onclick="toggleAIPanel()">−</button>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="ai-quick-actions">
+                <button class="quick-action-btn" onclick="setPrompt('What should I focus on today?')">
+                    🎯 Daily Priorities
+                </button>
+                <button class="quick-action-btn" onclick="setPrompt('Create task: ')">
+                    ✅ Quick Task
+                </button>
+                <button class="quick-action-btn" onclick="setPrompt('Summarize my week')">
+                    📊 My Summary
+                </button>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="ai-messages" id="ai-messages">
+                <div class="ai-welcome">
+                    <div class="ai-welcome-icon">👋</div>
+                    <h3>Hey {{ request.user.first_name|default:"there" }}!</h3>
+                    <p>I'm your AI assistant. I can help you:</p>
+                    <ul class="ai-capabilities">
+                        <li>📝 Create and manage tasks</li>
+                        <li>🎯 Suggest daily priorities</li>
+                        <li>📊 Analyze your productivity</li>
+                        <li>💡 Answer questions</li>
+                        <li>🔔 Send smart reminders</li>
+                    </ul>
+                    <p class="ai-tip">Try: <em>"What should I work on today?"</em></p>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="ai-input-area">
+                <form id="ai-form" onsubmit="sendAIMessage(event)">
+                    <div class="ai-input-wrapper">
+                        <input 
+                            type="text" 
+                            id="ai-input" 
+                            class="ai-input" 
+                            placeholder="Ask anything or give a command…"
+                            autocomplete="off"
+                        >
+                        <button type="submit" class="ai-send-btn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M2 10L18 2L10 18L9 11L2 10Z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="ai-suggestions" id="ai-suggestions">
+                        <span class="suggestion-chip" onclick="setPrompt('Create task: ')">Create task</span>
+                        <span class="suggestion-chip" onclick="setPrompt('Show my tasks')">My tasks</span>
+                        <span class="suggestion-chip" onclick="setPrompt('Daily summary')">Summary</span>
+                    </div>
+                </form>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        function toggleAIPanel() {
+            document.querySelector('.ai-panel').classList.toggle('minimized');
+        }
+
+        function setPrompt(text) {
+            document.getElementById('ai-input').value = text;
+            document.getElementById('ai-input').focus();
+        }
+
+        function sendAIMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('ai-input');
+            const messages = document.getElementById('ai-messages');
+            const prompt = input.value.trim();
+            
+            if (!prompt) return;
+            
+            // Clear welcome message if it exists
+            const welcome = messages.querySelector('.ai-welcome');
+            if (welcome) welcome.remove();
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'ai-message user';
+            userMsg.innerHTML = `
+                <div class="message-bubble">${prompt}</div>
+                <div class="message-time">Just now</div>
+            `;
+            messages.appendChild(userMsg);
+            
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+            
+            // Show typing indicator
+            const typing = document.createElement('div');
+            typing.className = 'typing-indicator';
+            typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+            messages.appendChild(typing);
+            messages.scrollTop = messages.scrollHeight;
+            
+            // Send to backend
+            fetch('{% url "dashboard:ai_process" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ prompt: prompt })
+            })
+            .then(r => r.json())
+            .then(data => {
+                // Remove typing indicator
+                typing.remove();
+                
+                // Add AI response
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'ai-message assistant';
+                const msg = data.message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                aiMsg.innerHTML = `
+                    <div class="message-bubble">${msg}</div>
+                    <div class="message-time">Just now</div>
+                `;
+                messages.appendChild(aiMsg);
+                messages.scrollTop = messages.scrollHeight;
+                
+                // Refresh if needed
+                if (data.actions && data.actions.includes('refresh_tasks')) {
+                    setTimeout(() => location.reload(), 1500);
+                }
+            })
+            .catch(err => {
+                typing.remove();
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'ai-message assistant';
+                errorMsg.innerHTML = `
+                    <div class="message-bubble">Sorry, something went wrong. Please try again.</div>
+                `;
+                messages.appendChild(errorMsg);
+            });
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

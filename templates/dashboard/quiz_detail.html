@@ -1,0 +1,187 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}{{ quiz.title }}{% endblock %}
+
+{% block content %}
+<style>
+    .quiz-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .quiz-header {
+        background: linear-gradient(135deg, #048042 0%, #036835 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .question-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .question-number {
+        font-size: 0.875rem;
+        color: var(--primary);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    .question-text {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    .choice-option {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .choice-option:hover {
+        border-color: var(--primary);
+        background: rgba(4, 128, 66, 0.05);
+    }
+
+    .choice-option.selected {
+        border-color: var(--primary);
+        background: rgba(4, 128, 66, 0.1);
+    }
+
+    .choice-option input[type="radio"] {
+        accent-color: var(--primary);
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+
+    .timer {
+        position: fixed;
+        top: 80px;
+        right: 420px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        z-index: 10;
+        box-shadow: var(--shadow);
+    }
+
+    .timer-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .timer-value.warning {
+        color: #f59e0b;
+    }
+
+    .timer-value.danger {
+        color: #ef4444;
+        animation: pulse 1s infinite;
+    }
+
+    .timer-label {
+        font-size: 0.75rem;
+        color: var(--text-light);
+    }
+</style>
+
+<!-- Timer -->
+<div class="timer" id="quiz-timer">
+    <div class="timer-value" id="timer-display">{{ quiz.time_limit_minutes }}:00</div>
+    <div class="timer-label">Time Left</div>
+</div>
+
+<div class="quiz-container">
+    <!-- Header -->
+    <div class="quiz-header">
+        <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">
+            {{ quiz.title }}
+        </h1>
+        <div style="display: flex; gap: 2rem; font-size: 0.9375rem; opacity: 0.9;">
+            <span>❓ {{ questions|length }} questions</span>
+            <span>⏱️ {{ quiz.time_limit_minutes }} minutes</span>
+            <span>🏆 {{ quiz.points_reward }} points</span>
+        </div>
+    </div>
+
+    <!-- Quiz Form -->
+    <form method="POST" action="{% url 'dashboard:quiz_submit' quiz.pk %}" id="quiz-form">
+        {% csrf_token %}
+
+        {% for question in questions %}
+        <div class="question-card">
+            <div class="question-number">Question {{ forloop.counter }} of {{ questions|length }}</div>
+            <div class="question-text">{{ question.question_text }}</div>
+
+            {% if question.question_type == 'multiple_choice' or question.question_type == 'true_false' %}
+            {% for choice in question.choices.all %}
+            <label class="choice-option" onclick="selectChoice(this)">
+                <input type="radio" name="question_{{ question.pk }}" value="{{ choice.pk }}" required>
+                <span>{{ choice.choice_text }}</span>
+            </label>
+            {% endfor %}
+            {% elif question.question_type == 'text' %}
+            <textarea name="question_{{ question.pk }}" class="form-input" rows="3" placeholder="Your answer..."></textarea>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <!-- Submit -->
+        <div style="text-align: center; margin-top: 2rem; margin-bottom: 2rem;">
+            <button type="submit" class="btn btn-primary" style="padding: 1rem 3rem; font-size: 1.125rem;">
+                Submit Quiz ✅
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Timer
+let timeLeft = {{ time_limit }} ;
+const timerDisplay = document.getElementById('timer-display');
+const timerValue = document.querySelector('.timer-value');
+
+const timer = setInterval(() => {
+    timeLeft--;
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    if (timeLeft <= 60) {
+        timerValue.className = 'timer-value danger';
+    } else if (timeLeft <= 180) {
+        timerValue.className = 'timer-value warning';
+    }
+    
+    if (timeLeft <= 0) {
+        clearInterval(timer);
+        document.getElementById('quiz-form').submit();
+    }
+}, 1000);
+
+function selectChoice(label) {
+    const name = label.querySelector('input').name;
+    document.querySelectorAll(`input[name="${name}"]`).forEach(input => {
+        input.closest('.choice-option').classList.remove('selected');
+    });
+    label.classList.add('selected');
+}
+</script>
+{% endblock %}

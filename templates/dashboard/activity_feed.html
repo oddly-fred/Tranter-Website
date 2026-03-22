@@ -1,0 +1,443 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block page_title %}Activity Feed{% endblock %}
+
+{% block content %}
+<style>
+    .activity-hero {
+        background: linear-gradient(135deg, #048042 0%, #036835 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .activity-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .activity-hero p {
+        font-size: 1.125rem;
+        opacity: 0.95;
+    }
+
+    .activity-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 2rem;
+    }
+
+    .activity-filters {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.9375rem;
+    }
+    .filter-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+    .filter-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .activity-stream {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    .activity-item {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 1rem;
+        transition: all 0.2s;
+        position: relative;
+    }
+    .activity-item:hover {
+        background: var(--bg);
+    }
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        position: relative;
+    }
+    .activity-icon.task-created { background: rgba(59, 130, 246, 0.1); }
+    .activity-icon.task-completed { background: rgba(16, 185, 129, 0.1); }
+    .activity-icon.lesson-completed { background: rgba(139, 92, 246, 0.1); }
+    .activity-icon.badge-earned { background: rgba(251, 191, 36, 0.1); }
+    .activity-icon.login { background: rgba(107, 114, 128, 0.1); }
+
+    .activity-badge {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+    }
+
+    .activity-content {
+        flex: 1;
+        min-width: 0;
+    }
+    .activity-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 0.5rem;
+    }
+    .activity-user {
+        font-weight: 600;
+        color: var(--text);
+        margin-right: 0.25rem;
+    }
+    .activity-action {
+        color: var(--text-light);
+    }
+    .activity-time {
+        font-size: 0.875rem;
+        color: var(--text-light);
+        white-space: nowrap;
+    }
+    .activity-description {
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+    .activity-target {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: var(--bg);
+        border-radius: 8px;
+        font-size: 0.9375rem;
+        color: var(--text);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .activity-target:hover {
+        background: rgba(4, 128, 66, 0.1);
+        color: var(--primary);
+    }
+
+    .sidebar-widget {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        margin-bottom: 1.5rem;
+    }
+    .widget-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+    .stat-label {
+        color: var(--text-light);
+        font-size: 0.9375rem;
+    }
+    .stat-value {
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    .top-performer {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .top-performer:last-child {
+        border-bottom: none;
+    }
+    .performer-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+    .performer-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .performer-name {
+        font-weight: 500;
+        font-size: 0.9375rem;
+        margin-bottom: 0.125rem;
+    }
+    .performer-meta {
+        font-size: 0.8125rem;
+        color: var(--text-light);
+    }
+    .performer-badge {
+        font-size: 1.25rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-light);
+    }
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .load-more {
+        padding: 1rem;
+        text-align: center;
+    }
+    .load-more button {
+        padding: 0.75rem 2rem;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .load-more button:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    @media (max-width: 1024px) {
+        .activity-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- Hero Section -->
+<div class="activity-hero">
+    <h1>📈 Activity Feed</h1>
+    <p>Stay updated with what's happening across the team</p>
+</div>
+
+<!-- Main Layout -->
+<div class="activity-layout">
+    <!-- Activity Stream -->
+    <div>
+        <!-- Filters -->
+        <div class="activity-filters">
+            <span style="font-weight: 500; color: var(--text);">Filter:</span>
+            <button class="filter-btn active" onclick="filterActivity('all')">All Activity</button>
+            <button class="filter-btn" onclick="filterActivity('task_created')">📝 Tasks Created</button>
+            <button class="filter-btn" onclick="filterActivity('task_completed')">✅ Tasks Done</button>
+            <button class="filter-btn" onclick="filterActivity('lesson_completed')">🎓 Learning</button>
+        </div>
+
+        <!-- Activity Stream -->
+        <div class="activity-stream" id="activity-stream">
+            {% for activity in activities %}
+            <div class="activity-item" data-type="{{ activity.action_type }}">
+                <!-- Icon -->
+                <div class="activity-icon {{ activity.action_type }}">
+                    {% if activity.action_type == 'task_created' %}📝
+                    {% elif activity.action_type == 'task_completed' %}✅
+                    {% elif activity.action_type == 'lesson_completed' %}📖
+                    {% elif activity.action_type == 'badge_earned' %}🏆
+                    {% elif activity.action_type == 'login' %}👋
+                    {% else %}📌{% endif %}
+                    
+                    <div class="activity-badge">
+                        {{ activity.user.profile.full_name|slice:":1"|upper }}
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="activity-content">
+                    <div class="activity-header">
+                        <div>
+                            <span class="activity-user">{{ activity.user.profile.full_name }}</span>
+                            <span class="activity-action">
+                                {% if activity.action_type == 'task_created' %}created a task
+                                {% elif activity.action_type == 'task_completed' %}completed a task
+                                {% elif activity.action_type == 'lesson_completed' %}completed a lesson
+                                {% elif activity.action_type == 'badge_earned' %}earned a badge
+                                {% elif activity.action_type == 'login' %}logged in
+                                {% else %}{{ activity.action_type }}{% endif %}
+                            </span>
+                        </div>
+                        <span class="activity-time">{{ activity.created_at|timesince }} ago</span>
+                    </div>
+                    
+                    <div class="activity-description">{{ activity.description }}</div>
+                    
+                    {% if activity.related_object_id and activity.action_type == 'task_completed' or activity.action_type == 'task_created' %}
+                    <a href="{% url 'dashboard:task_detail' activity.related_object_id %}" class="activity-target">
+                        <span>View Task</span>
+                        <span>→</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📈</div>
+                <h3>No activity yet</h3>
+                <p>Activities will appear here as your team works</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if activities|length >= 20 %}
+        <div class="load-more">
+            <button onclick="loadMore()">Load More Activity</button>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar Widgets -->
+    <div>
+        <!-- Today's Stats -->
+        <div class="sidebar-widget">
+            <div class="widget-title">
+                <span>📊</span>
+                <span>Today's Activity</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Tasks Completed</span>
+                <span class="stat-value">{{ today_stats.tasks_completed|default:0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Tasks Created</span>
+                <span class="stat-value">{{ today_stats.tasks_created|default:0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Lessons Completed</span>
+                <span class="stat-value">{{ today_stats.lessons_completed|default:0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Active Users</span>
+                <span class="stat-value">{{ today_stats.active_users|default:0 }}</span>
+            </div>
+        </div>
+
+        <!-- Top Performers This Week -->
+        <div class="sidebar-widget">
+            <div class="widget-title">
+                <span>⭐</span>
+                <span>Top Performers</span>
+            </div>
+            {% for performer in top_performers %}
+            <div class="top-performer">
+                <div class="performer-avatar" style="background: {% cycle '#048042' '#3b82f6' '#8b5cf6' %}">
+                    {{ performer.full_name|slice:":1"|upper }}
+                </div>
+                <div class="performer-info">
+                    <div class="performer-name">{{ performer.full_name }}</div>
+                    <div class="performer-meta">{{ performer.points }} points this week</div>
+                </div>
+                <div class="performer-badge">
+                    {% if forloop.counter == 1 %}🥇
+                    {% elif forloop.counter == 2 %}🥈
+                    {% elif forloop.counter == 3 %}🥉
+                    {% else %}⭐{% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p style="color: var(--text-light); font-size: 0.875rem; text-align: center; padding: 1rem 0;">
+                No activity this week
+            </p>
+            {% endfor %}
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="sidebar-widget">
+            <div class="widget-title">
+                <span>⚡</span>
+                <span>Quick Actions</span>
+            </div>
+            <a href="{% url 'dashboard:task_create' %}" class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;">
+                + Create Task
+            </a>
+            <a href="{% url 'dashboard:courses' %}" class="btn btn-secondary" style="width: 100%;">
+                📚 Browse Courses
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterActivity(type) {
+    // Update active button
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Filter activities
+    const items = document.querySelectorAll('.activity-item');
+    items.forEach(item => {
+        if (type === 'all' || item.dataset.type === type) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function loadMore() {
+    // In production, fetch more via AJAX
+    alert('Load more functionality - implement AJAX pagination');
+}
+</script>
+{% endblock %}

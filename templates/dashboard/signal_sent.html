@@ -1,0 +1,41 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}Sent Signals{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 1rem;">📤 Sent Signals</h1>
+    
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+        <div style="background: var(--bg); padding: 1rem; border-radius: 8px; text-align: center;">
+            <div style="font-size: 1.75rem; font-weight: 700; color: var(--primary);">{{ stats.sent }}</div>
+            <div style="font-size: 0.875rem; color: var(--text-light);">Total Sent</div>
+        </div>
+        <div style="background: var(--bg); padding: 1rem; border-radius: 8px; text-align: center;">
+            <div style="font-size: 1.75rem; font-weight: 700; color: var(--primary);">{{ stats.read }}</div>
+            <div style="font-size: 0.875rem; color: var(--text-light);">Read</div>
+        </div>
+        <div style="background: var(--bg); padding: 1rem; border-radius: 8px; text-align: center;">
+            <div style="font-size: 1.75rem; font-weight: 700; color: var(--primary);">{{ stats.responded }}</div>
+            <div style="font-size: 0.875rem; color: var(--text-light);">Responded</div>
+        </div>
+    </div>
+
+    {% for signal in signals %}
+    <div style="padding: 1rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.75rem; cursor: pointer;" onclick="window.location.href='{% url 'dashboard:signal_detail' signal.pk %}'">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div>
+                <strong>To: {{ signal.recipient.profile.full_name }}</strong>
+                <div style="font-size: 0.9375rem; margin-top: 0.25rem;">{{ signal.subject }}</div>
+                <div style="font-size: 0.8125rem; color: var(--text-light); margin-top: 0.5rem;">
+                    {{ signal.icon }} {{ signal.get_signal_type_display }} • {{ signal.created_at|timesince }} ago
+                    {% if signal.is_responded %} • ✅ Responded{% elif signal.is_read %} • 👁️ Read{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p style="text-align: center; color: var(--text-light); padding: 2rem;">No sent signals yet</p>
+    {% endfor %}
+</div>
+{% endblock %}

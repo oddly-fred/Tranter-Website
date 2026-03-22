@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% load geo_extras %}
+
+{% block title %}{% if is_nigeria %}Welcome to Tranter IT - Nigeria{% else %}Welcome to Tranter IT - Global{% endif %}{% endblock %}
+
+{% block content %}
+<!-- Region Switcher (Fixed position) -->
+<div class="region-switcher">
+    <form action="{% url 'geo_content:set_region' %}" method="post" class="region-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <input type="hidden" name="region" value="{{ alternate_region }}">
+        <button type="submit" class="region-btn" title="Switch to {{ alternate_region_name }}">
+            <span class="region-flag">{{ alternate_region_flag }}</span>
+            <span class="region-text">Switch to {{ alternate_region_name }}</span>
+        </button>
+    </form>
+</div>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        {% if hero.found %}
+            <h1>{{ hero.text|safe }}</h1>
+            {% if hero.image %}
+                <img src="{{ hero.image }}" alt="Hero" class="hero-image">
+            {% endif %}
+            {% if hero.json %}
+                <div class="hero-cta">
+                    <a href="{{ hero.json.cta_url }}" class="btn btn-primary">
+                        {{ hero.json.cta_text }}
+                    </a>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Fallback content -->
+            <h1>{% if is_nigeria %}Welcome to Tranter IT Nigeria{% else %}Welcome to Tranter IT Global{% endif %}</h1>
+            <p>{% if is_nigeria %}Your trusted IT partner in Nigeria{% else %}Global IT solutions for your business{% endif %}</p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features">
+    <div class="container">
+        {% if features.found %}
+            <div class="features-content">
+                {{ features.text|safe }}
+            </div>
+            {% if features.image %}
+                <img src="{{ features.image }}" alt="Features" class="features-image">
+            {% endif %}
+        {% else %}
+            <!-- Fallback -->
+            <h2>{% if is_nigeria %}What We Do in Nigeria{% else %}Global What We Do{% endif %}</h2>
+            <p>Explore our comprehensive IT solutions.</p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="pricing">
+    <div class="container">
+        {% if pricing.found %}
+            <div class="pricing-banner">
+                {{ pricing.text|safe }}
+                {% if pricing.json %}
+                    <div class="pricing-cards">
+                        {% for plan in pricing.json.plans %}
+                            <div class="pricing-card {% if plan.featured %}featured{% endif %}">
+                                <h3>{{ plan.name }}</h3>
+                                <div class="price">
+                                    <span class="currency">{{ pricing.currency_symbol }}</span>
+                                    <span class="amount">{{ plan.price }}</span>
+                                    <span class="period">{{ plan.period }}</span>
+                                </div>
+                                <ul class="features">
+                                    {% for feature in plan.features %}
+                                        <li>{{ feature }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <a href="{{ plan.cta_url }}" class="btn btn-primary">{{ plan.cta_text }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta">
+    <div class="container">
+        {% if cta.found %}
+            <div class="cta-content">
+                {{ cta.text|safe }}
+            </div>
+            {% if cta.image %}
+                <img src="{{ cta.image }}" alt="CTA" class="cta-image">
+            {% endif %}
+        {% else %}
+            <h2>{% if is_nigeria %}Ready to get started in Nigeria?{% else %}Ready to go global?{% endif %}</h2>
+            <a href="/contact/" class="btn btn-primary">Contact Us</a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Debug Info (only in DEBUG mode) -->
+{% if debug %}
+<div class="geo-debug">
+    <h4>Debug Info:</h4>
+    <ul>
+        <li>Country: {{ country }}</li>
+        <li>Region: {{ region }}</li>
+        <li>Is Nigeria: {{ is_nigeria }}</li>
+        <li>Currency: {{ currency_symbol }} ({{ currency_code }})</li>
+    </ul>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Region Switcher Styles */
+    .region-switcher {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+
+    .region-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: var(--green, #11874b);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .region-btn:hover {
+        background: var(--green-mid, #1a9e5a);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .region-flag {
+        font-size: 18px;
+    }
+
+    /* Section Styles */
+    .hero {
+        padding: 80px 0;
+        background: linear-gradient(135deg, var(--green-pale, #e5f5ec) 0%, var(--white, #fff) 100%);
+        text-align: center;
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--green, #11874b);
+    }
+
+    .features, .pricing, .cta {
+        padding: 60px 0;
+    }
+
+    .features:nth-child(even) {
+        background: var(--offwhite, #f7faf6);
+    }
+
+    /* Pricing Cards */
+    .pricing-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-top: 40px;
+    }
+
+    .pricing-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+
+    .pricing-card.featured {
+        border: 2px solid var(--green, #11874b);
+        transform: scale(1.05);
+    }
+
+    .pricing-card .price {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--green, #11874b);
+        margin: 20px 0;
+    }
+
+    .pricing-card .currency {
+        font-size: 1.5rem;
+    }
+
+    .pricing-card .features {
+        list-style: none;
+        padding: 0;
+        margin: 24px 0;
+    }
+
+    .pricing-card .features li {
+        padding: 8px 0;
+        border-bottom: 1px solid var(--rule, #e2e9e0);
+    }
+
+    /* Debug Info */
+    .geo-debug {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 16px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-family: monospace;
+    }
+
+    .geo-debug ul {
+        margin: 0;
+        padding-left: 16px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Optional: Store region preference in localStorage for faster switching
+    (function() {
+        const currentRegion = '{{ region }}';
+
+        // Sync with localStorage
+        localStorage.setItem('tranter_region', currentRegion);
+
+        // Optional: Listen for region changes from other tabs
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'tranter_region' && e.newValue !== currentRegion) {
+                // Region changed in another tab, reload
+                window.location.reload();
+            }
+        });
+    })();
+</script>
+{% endblock %}

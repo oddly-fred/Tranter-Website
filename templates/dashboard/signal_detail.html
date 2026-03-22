@@ -1,0 +1,219 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}Signal Detail{% endblock %}
+
+{% block content %}
+<style>
+    .signal-detail-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .signal-header-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border);
+    }
+
+    .signal-urgency-banner {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .signal-urgency-banner.urgent {
+        background: rgba(239, 68, 68, 0.1);
+        border-left: 4px solid #ef4444;
+    }
+
+    .signal-urgency-banner.high {
+        background: rgba(245, 158, 11, 0.1);
+        border-left: 4px solid #f59e0b;
+    }
+
+    .response-section {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        border: 1px solid var(--border);
+        margin-top: 1.5rem;
+    }
+
+    .reaction-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .reaction-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+        font-size: 1.25rem;
+        transition: all 0.2s;
+    }
+
+    .reaction-btn:hover {
+        transform: scale(1.1);
+        border-color: var(--primary);
+    }
+
+    .reaction-btn.selected {
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+</style>
+
+<div class="signal-detail-container">
+    <!-- Back Link -->
+    <a href="{% url 'dashboard:signal_inbox' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-light); text-decoration: none; margin-bottom: 1rem;">
+        ← Back to Inbox
+    </a>
+
+    <!-- Urgency Banner -->
+    {% if signal.urgency in 'urgent,high' %}
+    <div class="signal-urgency-banner {{ signal.urgency }}">
+        <span style="font-size: 1.5rem;">
+            {% if signal.urgency == 'urgent' %}🔥{% else %}⚡{% endif %}
+        </span>
+        <div>
+            <strong>{{ signal.get_urgency_display }}</strong>
+            <div style="font-size: 0.875rem; opacity: 0.8;">This signal requires immediate attention</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Signal Header -->
+    <div class="signal-header-card">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
+            <div style="flex: 1;">
+                <div style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 0.5rem;">
+                    {{ signal.icon }} {{ signal.get_signal_type_display }}
+                </div>
+                <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.75rem;">
+                    {{ signal.subject }}
+                </h1>
+                <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; color: var(--text-light);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div class="avatar" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                            {{ signal.sender.profile.full_name|slice:":1" }}
+                        </div>
+                        <span><strong>From:</strong> {{ signal.sender.profile.full_name }}</span>
+                    </div>
+                    <span>•</span>
+                    <span>{{ signal.created_at|timesince }} ago</span>
+                </div>
+            </div>
+
+            {% if signal.reaction %}
+            <div style="font-size: 2rem;">{{ signal.reaction }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Message -->
+        <div style="background: var(--bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <p style="line-height: 1.7; white-space: pre-wrap;">{{ signal.message }}</p>
+        </div>
+
+        <!-- Context Links -->
+        {% if signal.related_task or signal.related_project %}
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+            {% if signal.related_task %}
+            <a href="{% url 'dashboard:task_detail' signal.related_task.pk %}" class="btn btn-secondary btn-sm">
+                📋 View Task: {{ signal.related_task.title }}
+            </a>
+            {% endif %}
+            {% if signal.related_project %}
+            <a href="{% url 'dashboard:project_detail' signal.related_project.pk %}" class="btn btn-secondary btn-sm">
+                📁 View Project: {{ signal.related_project.name }}
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Status -->
+        <div style="display: flex; gap: 1.5rem; padding: 1rem; background: var(--bg); border-radius: 8px;">
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-light);">Status</div>
+                <div style="font-weight: 600;">
+                    {% if signal.is_responded %}
+                        ✅ Responded
+                    {% elif signal.is_read %}
+                        👁️ Read
+                    {% else %}
+                        📬 Unread
+                    {% endif %}
+                </div>
+            </div>
+            {% if signal.is_read and signal.read_at %}
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-light);">Read At</div>
+                <div style="font-weight: 600;">{{ signal.read_at|date:"M d, h:i A" }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Response Section (Only for Recipients) -->
+    {% if signal.recipient == request.user %}
+    <div class="response-section">
+        <h3 style="font-weight: 600; margin-bottom: 1rem;">Your Response</h3>
+
+        {% if signal.is_responded %}
+        <!-- Already Responded -->
+        <div style="background: rgba(16, 185, 129, 0.1); padding: 1.5rem; border-radius: 8px; border-left: 4px solid #10b981;">
+            <div style="font-size: 0.875rem; color: #065f46; margin-bottom: 0.5rem;">
+                ✅ You responded on {{ signal.responded_at|date:"M d, h:i A" }}
+            </div>
+            <p style="color: #064e3b; line-height: 1.6;">{{ signal.response_text }}</p>
+        </div>
+        {% else %}
+        <!-- Response Form -->
+        <form method="POST" action="{% url 'dashboard:signal_respond' signal.pk %}">
+            {% csrf_token %}
+            <textarea 
+                name="response" 
+                class="form-input" 
+                rows="4" 
+                placeholder="Type your response..." 
+                required
+            ></textarea>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                <div class="reaction-buttons">
+                    <button type="submit" name="reaction" value="👍" class="reaction-btn">👍</button>
+                    <button type="submit" name="reaction" value="❤️" class="reaction-btn">❤️</button>
+                    <button type="submit" name="reaction" value="🔥" class="reaction-btn">🔥</button>
+                    <button type="submit" name="reaction" value="✅" class="reaction-btn">✅</button>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Send Response
+                </button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Sender View (if viewing own sent signal) -->
+    {% if signal.sender == request.user and signal.is_responded %}
+    <div class="response-section">
+        <h3 style="font-weight: 600; margin-bottom: 1rem;">Response from {{ signal.recipient.profile.full_name }}</h3>
+        <div style="background: rgba(4, 128, 66, 0.05); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary);">
+            <p style="line-height: 1.6;">{{ signal.response_text }}</p>
+            <div style="font-size: 0.875rem; color: var(--text-light); margin-top: 0.75rem;">
+                Responded {{ signal.responded_at|timesince }} ago
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

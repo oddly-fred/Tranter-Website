@@ -1,0 +1,148 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block page_title %}{{ lesson.title }}{% endblock %}
+
+{% block content %}
+<style>
+    .lesson-nav {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid var(--border);
+    }
+    .lesson-nav a {
+        color: var(--text-light);
+        text-decoration: none;
+        font-size: 0.9375rem;
+    }
+    .lesson-nav a:hover {
+        color: var(--primary);
+    }
+
+    .lesson-container {
+        background: white;
+        border-radius: 12px;
+        padding: 3rem;
+        border: 1px solid var(--border);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .lesson-container h1 {
+        font-size: 2.25rem;
+        margin-bottom: 1.5rem;
+        color: var(--text);
+        line-height: 1.3;
+    }
+    .lesson-container p {
+        font-size: 1.0625rem;
+        line-height: 1.8;
+        color: var(--text);
+        margin-bottom: 1.25rem;
+    }
+    .lesson-container h2 {
+        font-size: 1.5rem;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: var(--text);
+    }
+    .lesson-container ul {
+        margin-left: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .lesson-container li {
+        margin-bottom: 0.5rem;
+        line-height: 1.7;
+    }
+
+    .lesson-footer {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .complete-btn {
+        background: var(--primary);
+        color: white;
+        padding: 0.875rem 2rem;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .complete-btn:hover {
+        background: var(--primary-light);
+    }
+    .complete-btn.completed {
+        background: #10b981;
+        cursor: default;
+    }
+</style>
+
+<!-- Breadcrumb Navigation -->
+<div class="lesson-nav">
+    <a href="{% url 'dashboard:course_detail' course.pk %}">← Back to {{ course.title }}</a>
+    <span style="color: var(--text-light); font-size: 0.875rem;">
+        Lesson {{ lesson.order|add:1 }} of {{ course.lessons.count }}
+    </span>
+</div>
+
+<!-- Lesson Content -->
+<div class="lesson-container">
+    <h1>{{ lesson.title }}</h1>
+    
+    <div style="color: var(--text-light); margin-bottom: 2rem; font-size: 0.9375rem;">
+        ⏱️ {{ lesson.duration_minutes }} minutes
+    </div>
+
+    <div>
+        {{ lesson.content|linebreaks }}
+    </div>
+
+    <!-- Lesson Footer -->
+    <div class="lesson-footer">
+        <div>
+            {% if prev_lesson %}
+            <a href="{% url 'dashboard:lesson_detail' course.pk prev_lesson.pk %}" class="btn btn-secondary">
+                ← Previous Lesson
+            </a>
+            {% endif %}
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            {% if not progress.is_completed %}
+            <form method="POST" action="{% url 'dashboard:mark_complete' lesson.pk %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="complete-btn">
+                    ✓ Mark as Complete
+                </button>
+            </form>
+            {% else %}
+            <button class="complete-btn completed" disabled>
+                ✓ Completed
+            </button>
+            {% endif %}
+
+            {% if next_lesson %}
+            <a href="{% url 'dashboard:lesson_detail' course.pk next_lesson.pk %}" class="btn btn-primary">
+                Next Lesson →
+            </a>
+            {% else %}
+            <a href="{% url 'dashboard:course_detail' course.pk %}" class="btn btn-primary">
+                🎉 Finish Course
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

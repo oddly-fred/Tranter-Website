@@ -1,202 +1,217 @@
 {% extends "base.html" %}
 {% load static %}
+{% load geo_extras %}
 
 {% block title %}Home{% endblock %}
-{% block meta_description %}Tranter — Powering Intelligent Business Infrastructure across Africa and beyond.{% endblock %}
+{% block meta_description %}{% if is_nigeria %}Tranter Nigeria — Powering Intelligent Business Infrastructure. ISO Certified Enterprise Technology Partner for African markets.{% else %}Tranter Global — Powering Intelligent Business Infrastructure across international markets. ISO Certified Enterprise Technology Partner.{% endif %}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
 {% endblock %}
 
+
 {% block content %}
 
-<!-- ══════════════════════════════════════ HERO ══ -->
-<section class="hero">
-  <div class="hero-grid-bg"></div>
-  <div class="h-glow-green"></div>
-  <div class="h-glow-red"></div>
+{# ══════════════════════════════════════════════════════ HERO ══ #}
+<section class="hero" id="hero">
 
-  {# Background image/video slides — managed via HeroSlide model #}
-  <div class="hero-slides">
+  {# Background slides — video first, then 2 images #}
+  <div class="hero-slides" id="heroSlides">
     {% for slide in hero_slides %}
-      <div class="slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+      <div class="slide {% if forloop.first %}active{% endif %}">
         {% if slide.media_type == 'video' %}
           <video autoplay muted loop playsinline>
             <source src="{{ slide.media_file.url }}" type="video/mp4">
           </video>
         {% else %}
-          <img src="{{ slide.media_file.url }}" alt="{{ slide.alt_text }}"/>
+          <img src="{{ slide.media_file.url }}"
+               alt="{{ slide.alt_text|default:'Tranter' }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
         {% endif %}
       </div>
     {% empty %}
-      {# Fallback slides if no DB slides configured #}
+      {# Fallback slides until media is uploaded in admin #}
       <div class="slide active">
-        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1600&q=80" alt="Technology infrastructure"/>
+        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&q=80"
+             alt="Enterprise technology" loading="eager">
       </div>
       <div class="slide">
-        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&q=80" alt="Digital growth"/>
+        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80"
+             alt="Digital infrastructure" loading="lazy">
       </div>
       <div class="slide">
-        <img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1600&q=80" alt="Global technology"/>
+        <img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1920&q=80"
+             alt="Global technology" loading="lazy">
       </div>
     {% endfor %}
   </div>
 
+  {# Dark overlay on top of slides #}
+  <div class="hero-overlay"></div>
+
+  {# Dot grid watermark #}
+  <div class="hero-grid-bg"></div>
+
+  {# Ambient glows #}
+  <div class="h-glow-green"></div>
+  <div class="h-glow-red"></div>
+
+  {# Content grid #}
   <div class="hero-body">
-    {# Headline copy — left panel #}
+
+    {# ── LEFT: Copy + CTA ── #}
     <div class="hero-left">
+
+      {# Live pill badge - Region aware #}
       <div class="h-pill">
         <span class="pill-pulse"></span>
-        Enterprise Technology Partner · Global
+        Enterprise Technology Partner &middot; {% if is_nigeria %}Nigeria{% else %}Global{% endif %}
       </div>
 
+      {# Slide-synced headline copies #}
       <div class="slide-copies">
-        {# Slide 1 #}
-        <div class="slide-copy active" data-index="0">
+        <div class="slide-copy active">
           <h1 class="h-headline">
-            Powering<br>
-            <span class="t-green">Intelligent</span><br>
-            <span class="t-faint">Infrastructure.</span>
+            {% if hero_content.text %}
+              {{ hero_content.text|safe }}
+            {% else %}
+              Powering<br>
+              <span class="t-green">Intelligent</span><br>
+              <span class="t-faint">Infrastructure.{% if is_nigeria %} 🇳🇬{% endif %}</span>
+            {% endif %}
           </h1>
           <p class="h-sub">
-            Designing resilient IT systems that scale across markets, industries
-            and borders — built for enterprises that can't afford downtime.
+            {% if is_nigeria %}
+              Designing resilient IT systems for Nigerian enterprises — built for scale,
+              security, and the unique demands of Africa's fastest-growing markets.
+            {% else %}
+              Designing resilient IT systems that scale across markets,
+              industries and borders — built for enterprises that
+              can&rsquo;t afford downtime.
+            {% endif %}
           </p>
         </div>
 
-        {# Slide 2 #}
-        <div class="slide-copy" data-index="1">
+        <div class="slide-copy">
           <h1 class="h-headline">
             Digital<br>
             <span class="t-red">Presence</span><br>
-            <span class="t-faint">That Converts.</span>
+            <span class="t-faint">That Converts.{% if is_nigeria %} 🇳🇬{% endif %}</span>
           </h1>
           <p class="h-sub">
-            From strategy to execution — we position your brand for measurable
-            growth in the markets that matter most.
+            {% if is_nigeria %}
+              From strategy to execution — we position your brand
+              for measurable growth in Nigeria's competitive digital landscape.
+            {% else %}
+              From strategy to execution — we position your brand
+              for measurable growth in the markets that matter most.
+            {% endif %}
           </p>
         </div>
 
-        {# Slide 3 #}
-        <div class="slide-copy" data-index="2">
+        <div class="slide-copy">
           <h1 class="h-headline">
             Technology<br>
             <span class="t-green">Without</span><br>
-            <span class="t-faint">Borders.</span>
+            <span class="t-faint">Borders.{% if is_nigeria %} 🇳🇬{% endif %}</span>
           </h1>
           <p class="h-sub">
-            Delivering secure, scalable systems for enterprises across regions,
-            time zones, and regulatory environments.
+            {% if is_nigeria %}
+              Delivering secure, scalable systems for Nigerian enterprises
+              with global standards and local expertise.
+            {% else %}
+              Delivering secure, scalable systems for enterprises
+              across regions, time zones, and regulatory environments.
+            {% endif %}
           </p>
         </div>
       </div>
 
+      {# CTA buttons #}
       <div class="h-actions">
-        <a href="{% url 'contact' %}" class="btn-hero-g">Talk to an Expert →</a>
-        <a href="{% url 'services' %}" class="btn-hero-r">Explore Services</a>
+        <a href="{% url 'contact' %}"  class="btn-hero-g">Talk to an Expert &rarr;</a>
+        <a href="{% url 'what_we_do' %}" class="btn-hero-r">Explore Services</a>
       </div>
 
-      <div class="slide-dots">
-        <button class="sdot active" data-target="0" aria-label="Slide 1"></button>
-        <button class="sdot red" data-target="1" aria-label="Slide 2"></button>
-        <button class="sdot" data-target="2" aria-label="Slide 3"></button>
+      {# Slide navigation dots #}
+      <div class="slide-dots" id="slideDots">
+        <button class="sdot active" data-i="0" aria-label="Slide 1"></button>
+        <button class="sdot"        data-i="1" aria-label="Slide 2"></button>
+        <button class="sdot"        data-i="2" aria-label="Slide 3"></button>
       </div>
-    </div>
 
-    {# Consultation form — right panel (hidden on mobile) #}
-    <div class="hero-right">
-      <div class="form-card">
-        <div class="fc-stripe"></div>
-        <div class="fc-head">
-          <div class="fc-label">Get Started</div>
-          <div class="fc-title">Free Consultation<br>Request</div>
-        </div>
+    </div>{# /hero-left #}
 
-        <form method="POST" action="{% url 'consultation_submit' %}" class="cf">
+  
+        {# DJANGO FORM — remove this block when switching to Zoho iframe #}
+        <form method="POST" class="cf" novalidate>
           {% csrf_token %}
           <div class="cf-row">
             <div class="cf-field">
-              <label for="first_name">First Name</label>
-              <input type="text" id="first_name" name="first_name"
-                     placeholder="John" required />
+              <label>First Name</label>
+              <input type="text" name="first_name" placeholder="John" required>
             </div>
             <div class="cf-field">
-              <label for="last_name">Last Name</label>
-              <input type="text" id="last_name" name="last_name"
-                     placeholder="Doe" required />
+              <label>Last Name</label>
+              <input type="text" name="last_name" placeholder="Doe" required>
             </div>
           </div>
           <div class="cf-field">
-            <label for="email">Work Email</label>
-            <input type="email" id="email" name="email"
-                   placeholder="john@company.com" required />
+            <label>Work Email</label>
+            <input type="email" name="email" placeholder="john@company.com" required>
           </div>
           <div class="cf-field">
-            <label for="organisation">Organisation</label>
-            <input type="text" id="organisation" name="organisation"
-                   placeholder="Company Name" required />
+            <label>Organisation</label>
+            <input type="text" name="organisation" placeholder="Company Name" required>
           </div>
           <div class="cf-field">
-            <label for="service">Service Interest</label>
+            <label>Service Interest</label>
             <div class="cf-select-wrap">
-              <select id="service" name="service">
-                <option value="">Select a service…</option>
+              <select name="service">
+                <option value="">Select a service&hellip;</option>
                 <option value="it-support">IT Support Services</option>
-                <option value="smart-solutions">Smart Solutions & Automation</option>
+                <option value="smart-solutions">Smart Solutions</option>
                 <option value="cybersecurity">Cybersecurity</option>
                 <option value="manage-engine">ManageEngine</option>
                 <option value="zoho">Zoho Solutions</option>
-                <option value="digital-marketing">Digital Marketing & Brand</option>
+                <option value="digital-marketing">Digital Marketing &amp; Brand</option>
                 <option value="bpo">Business Process Outsourcing</option>
                 <option value="website">Website Development</option>
                 <option value="hr">HR Support Services</option>
               </select>
-              <span class="sel-arrow">▼</span>
+              <svg class="sel-arrow" width="12" height="7" viewBox="0 0 12 7" fill="none">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
             </div>
           </div>
-
-          {% if consultation_form.errors %}
-            <div class="cf-errors">
-              {% for field, errors in consultation_form.errors.items %}
-                {% for error in errors %}
-                  <p>{{ error }}</p>
-                {% endfor %}
-              {% endfor %}
-            </div>
-          {% endif %}
-
           {% if consultation_success %}
-            <div class="cf-success">
-              ✓ Thank you! We'll be in touch within 24 hours.
-            </div>
+            <div class="cf-success">&#x2713; Received! We&rsquo;ll be in touch within 24 hours.</div>
           {% endif %}
-
-          <button type="submit" class="cf-submit">
-            Request Free Consultation →
-          </button>
+          <button type="submit" class="cf-submit">Request Free Consultation &rarr;</button>
+          <p class="fc-note">&#x1F512; No spam. <strong>Response within 24 hours.</strong></p>
         </form>
 
-        <p class="fc-note">🔒 No spam. <strong>We respond within 24 hours.</strong></p>
       </div>
-    </div>
-  </div>
+    </div>{# /hero-right #}
 
+  </div>{# /hero-body #}
+
+  {# Scroll hint #}
   <div class="h-scroll-hint">
     <div class="scroll-line"></div>
     Scroll to explore
   </div>
+
 </section>
 
 
-<!-- ══════════════════════════════════ TRUST STRIP ══ -->
+{# ═══════════════════════════════════════ TRUST STRIP ══ #}
 <div class="trust-strip">
   <span class="trust-label">Trusted by</span>
   <div class="trust-track-wrap">
-    <div class="trust-track">
-      {% for client in featured_clients %}
-        <span class="trust-name">{{ client.name }}</span>
+    <div class="trust-track" id="trustTrack">
+      {% for client in clients %}
+        <span class="trust-name">{{ client }}</span>
       {% empty %}
-        {# Static fallback #}
         <span class="trust-name">GTBank</span>
         <span class="trust-name">Zenith Bank</span>
         <span class="trust-name">FCMB</span>
@@ -212,7 +227,7 @@
         <span class="trust-name">Wema Bank</span>
         <span class="trust-name">Heritage Bank</span>
         <span class="trust-name">Keystone Bank</span>
-        {# Duplicate for seamless loop #}
+        {# Duplicate for seamless CSS loop #}
         <span class="trust-name">GTBank</span>
         <span class="trust-name">Zenith Bank</span>
         <span class="trust-name">FCMB</span>
@@ -234,260 +249,257 @@
 </div>
 
 
-<!-- ══════════════════════════════════════ STATS ══ -->
+{# ═══════════════════════════════════════════ STATS ══ #}
 <div class="stats-band">
-  {% with stats=site_stats %}
-    <div class="stat-item green">
-      <div class="stat-val">
-        <em>{{ stats.sla_percent|default:"99" }}</em>%
-      </div>
-      <div class="stat-desc">SLA Completion Across All Support Sites</div>
+  <div class="stat-item green">
+    <div class="stat-val">
+      <span class="counter" data-target="99">0</span><em>%</em>
     </div>
-    <div class="stat-item red">
-      <div class="stat-val">
-        <em>{{ stats.engineers|default:"200" }}</em>+
-      </div>
-      <div class="stat-desc">Expert ICT & Smart Solutions Engineers</div>
+    <div class="stat-desc">SLA Completion Across All Support Sites</div>
+  </div>
+  <div class="stat-item red">
+    <div class="stat-val">
+      <span class="counter" data-target="200">0</span><em>+</em>
     </div>
-    <div class="stat-item green">
-      <div class="stat-val">
-        <em>{{ stats.oem_partners|default:"50" }}</em>+
-      </div>
-      <div class="stat-desc">Global OEM Partners Across the Globe</div>
+    <div class="stat-desc">Expert ICT &amp; Smart Solutions Engineers</div>
+  </div>
+  <div class="stat-item green">
+    <div class="stat-val">
+      <span class="counter" data-target="50">0</span><em>+</em>
     </div>
-    <div class="stat-item red">
-      <div class="stat-val">
-        <em>{{ stats.channel_partners|default:"30" }}</em>+
-      </div>
-      <div class="stat-desc">Channel Partners Around the World</div>
+    <div class="stat-desc">Global OEM Partners Across the Globe</div>
+  </div>
+  <div class="stat-item red">
+    <div class="stat-val">
+      <span class="counter" data-target="30">0</span><em>+</em>
     </div>
-  {% endwith %}
+    <div class="stat-desc">Channel Partners Around the World</div>
+  </div>
 </div>
 
 
-<!-- ══════════════════════════════════ SERVICES ══ -->
-<section class="section" id="services">
+{# ═════════════════════════════════════════ SERVICES ══ #}
+<section class="section" id="what-we-do">
   <div class="section-hdr">
     <div>
       <div class="eyebrow green">Capabilities</div>
       <h2 class="section-title">Enterprise Technology<br>Capabilities</h2>
     </div>
     <p class="section-desc">
-      We don't sell services. We design operational systems built for the way
-      modern enterprises actually work.
+      We don&rsquo;t sell services. We design operational systems
+      built for the way modern enterprises actually work.
     </p>
   </div>
 
   <div class="svc-grid">
-    {% for service in services %}
-      <div class="svc-card {% if service.accent == 'red' %}red{% endif %}">
+    {% for svc in what_we_do %}
+      <a href="{% url 'what_we_do' %}"
+         class="svc-card {% if svc.accent == 'red' %}red{% endif %}">
         <span class="svc-num">{{ forloop.counter|stringformat:"02d" }}</span>
-        <div class="svc-icon-wrap"><span>{{ service.icon }}</span></div>
-        <div class="svc-name">{{ service.name }}</div>
-        <div class="svc-desc">{{ service.short_description }}</div>
-        <a href="{% url 'service_detail' slug=service.slug %}" class="svc-arrow">
-          Explore capability →
-        </a>
-      </div>
+        <div class="svc-icon-wrap">{{ svc.icon }}</div>
+        <h3 class="svc-name">{{ svc.name }}</h3>
+        <p class="svc-desc">
+          {% if svc.short_description %}
+            {{ svc.short_description }}
+          {% else %}
+            Delivering enterprise-grade {{ svc.name|lower }} solutions
+            tailored to your operational environment.
+          {% endif %}
+        </p>
+        <span class="svc-arrow">Explore &rarr;</span>
+      </a>
     {% empty %}
-      {# Static fallback #}
-      <div class="svc-card">
+      <a href="{% url 'what_we_do' %}" class="svc-card">
         <span class="svc-num">01</span>
-        <div class="svc-icon-wrap"><span>⚡</span></div>
-        <div class="svc-name">IT Support Services</div>
-        <div class="svc-desc">Building and managing the digital backbone of modern organizations — reliable infrastructure across geographies.</div>
-        <a href="{% url 'service_detail' slug='it-support' %}" class="svc-arrow">Explore capability →</a>
-      </div>
-      <div class="svc-card">
+        <div class="svc-icon-wrap">&#x26A1;</div>
+        <h3 class="svc-name">IT Support Services</h3>
+        <p class="svc-desc">Building and managing the digital backbone of modern organizations — reliable infrastructure across geographies.</p>
+        <span class="svc-arrow">Explore &rarr;</span>
+      </a>
+      <a href="{% url 'what_we_do' %}" class="svc-card">
         <span class="svc-num">02</span>
-        <div class="svc-icon-wrap"><span>🤖</span></div>
-        <div class="svc-name">Smart Solutions</div>
-        <div class="svc-desc">Shifting organizations from manual to intelligent, technology-enabled workflows that scale seamlessly.</div>
-        <a href="{% url 'service_detail' slug='smart-solutions' %}" class="svc-arrow">Explore capability →</a>
-      </div>
-      <div class="svc-card red">
+        <div class="svc-icon-wrap">&#x1F916;</div>
+        <h3 class="svc-name">Smart Solutions</h3>
+        <p class="svc-desc">Shifting organizations from manual to intelligent, technology-enabled workflows that scale seamlessly.</p>
+        <span class="svc-arrow">Explore &rarr;</span>
+      </a>
+      <a href="{% url 'what_we_do' %}" class="svc-card red">
         <span class="svc-num">03</span>
-        <div class="svc-icon-wrap"><span>🛡️</span></div>
-        <div class="svc-name">Cybersecurity</div>
-        <div class="svc-desc">Embedding security into business operations as strategic infrastructure — not an afterthought.</div>
-        <a href="{% url 'service_detail' slug='cybersecurity' %}" class="svc-arrow">Explore capability →</a>
-      </div>
-      <div class="svc-card">
+        <div class="svc-icon-wrap">&#x1F6E1;&#xFE0F;</div>
+        <h3 class="svc-name">Cybersecurity</h3>
+        <p class="svc-desc">Embedding security into business operations as strategic infrastructure — not an afterthought.</p>
+        <span class="svc-arrow">Explore &rarr;</span>
+      </a>
+      <a href="{% url 'what_we_do' %}" class="svc-card">
         <span class="svc-num">04</span>
-        <div class="svc-icon-wrap"><span>📊</span></div>
-        <div class="svc-name">ManageEngine</div>
-        <div class="svc-desc">Certified partner delivering unified IT management across networks, security, and operations.</div>
-        <a href="{% url 'manage_engine' %}" class="svc-arrow">Explore capability →</a>
-      </div>
-      <div class="svc-card red">
+        <div class="svc-icon-wrap">&#x1F4CA;</div>
+        <h3 class="svc-name">ManageEngine</h3>
+        <p class="svc-desc">Certified partner delivering unified IT management across networks, security, and operations.</p>
+        <span class="svc-arrow">Explore &rarr;</span>
+      </a>
+      <a href="{% url 'what_we_do' %}" class="svc-card red">
         <span class="svc-num">05</span>
-        <div class="svc-icon-wrap"><span>☁️</span></div>
-        <div class="svc-name">Zoho Solutions</div>
-        <div class="svc-desc">Full-suite Zoho implementation — CRM, ERP, HR, and custom automation for enterprise workflows.</div>
-        <a href="{% url 'zoho_solutions' %}" class="svc-arrow">Explore capability →</a>
-      </div>
-      <div class="svc-card">
+        <div class="svc-icon-wrap">&#x2601;&#xFE0F;</div>
+        <h3 class="svc-name">Zoho Solutions</h3>
+        <p class="svc-desc">Full-suite Zoho implementation — CRM, ERP, HR, and custom automation for enterprise workflows.</p>
+        <span class="svc-arrow">Explore &rarr;</span>
+      </a>
+      <a href="{% url 'what_we_do' %}" class="svc-card">
         <span class="svc-num">06</span>
-        <div class="svc-icon-wrap"><span>🌐</span></div>
-        <div class="svc-name">Digital Marketing & Brand</div>
-        <div class="svc-desc">Enterprise-grade digital presence aligned to measurable business growth across channels and markets.</div>
-        <a href="{% url 'service_detail' slug='digital-marketing' %}" class="svc-arrow">Explore capability →</a>
-      </div>
-      <div class="svc-card red">
+        <div class="svc-icon-wrap">&#x1F310;</div>
+        <h3 class="svc-name">Digital Marketing &amp; Brand</h3>
+        <p class="svc-desc">Enterprise-grade digital presence aligned to measurable business growth across channels and markets.</p>
+        <span class="svc-arrow">Explore &rarr;</span>
+      </a>
+      <a href="{% url 'what_we_do' %}" class="svc-card red">
         <span class="svc-num">07</span>
-        <div class="svc-icon-wrap"><span>👥</span></div>
-        <div class="svc-name">HR Support Services</div>
-        <div class="svc-desc">Optimizing workforce operations across distributed environments with technology-enabled HR systems.</div>
-        <a href="{% url 'service_detail' slug='hr-support' %}" class="svc-arrow">Explore capability →</a>
-      </div>
-      <div class="svc-card">
+        <div class="svc-icon-wrap">&#x1F465;</div>
+        <h3 class="svc-name">HR Support Services</h3>
+        <p class="svc-desc">Optimizing workforce operations across distributed environments with technology-enabled HR systems.</p>
+        <span class="svc-arrow">Explore &rarr;</span>
+      </a>
+      <a href="{% url 'what_we_do' %}" class="svc-card">
         <span class="svc-num">08</span>
-        <div class="svc-icon-wrap"><span>⚙️</span></div>
-        <div class="svc-name">Business Process Outsourcing</div>
-        <div class="svc-desc">Turning non-core functions into scalable, technology-enabled systems with measurable SLA performance.</div>
-        <a href="{% url 'service_detail' slug='bpo' %}" class="svc-arrow">Explore capability →</a>
-      </div>
-      <div class="svc-card red">
+        <div class="svc-icon-wrap">&#x2699;&#xFE0F;</div>
+        <h3 class="svc-name">Business Process Outsourcing</h3>
+        <p class="svc-desc">Turning non-core functions into scalable, technology-enabled systems with measurable SLA performance.</p>
+        <span class="svc-arrow">Explore &rarr;</span>
+      </a>
+      <a href="{% url 'what_we_do' %}" class="svc-card red">
         <span class="svc-num">09</span>
-        <div class="svc-icon-wrap"><span>💻</span></div>
-        <div class="svc-name">Website Development</div>
-        <div class="svc-desc">Positioning digital assets as operational infrastructure — performance-driven and conversion-optimized.</div>
-        <a href="{% url 'service_detail' slug='website-development' %}" class="svc-arrow">Explore capability →</a>
-      </div>
+        <div class="svc-icon-wrap">&#x1F4BB;</div>
+        <h3 class="svc-name">Website Development</h3>
+        <p class="svc-desc">Positioning digital assets as operational infrastructure — performance-driven and conversion-optimized.</p>
+        <span class="svc-arrow">Explore &rarr;</span>
+      </a>
     {% endfor %}
   </div>
 </section>
 
 
-<!-- ══════════════════════════════════ WHO WE ARE ══ -->
-<section class="section bg-off" id="who-we-are">
+{# ═══════════════════════════════════════ WHO WE ARE ══ #}
+<section class="section bg-off" id="who">
   <div class="who-grid">
-    <div>
-      <div class="eyebrow green">Who We Are</div>
-      <h2 class="section-title">A Global Technology<br>Services Firm</h2>
+
+    <div class="who-left">
+      <div class="eyebrow red">Who We Are</div>
+      <h2 class="section-title">Strategic Partner<br>for Digital Growth</h2>
       <p class="who-body">
-        Tranter partners with organisations to design, build and operate the
-        digital systems that drive growth, resilience and operational excellence.
+        We partner with executive teams to solve complex operational and digital
+        challenges through scalable technology, automation and managed services.
       </p>
       <p class="who-body">
-        From enterprise IT infrastructure to smart automation, cybersecurity to
-        strategic HR systems — we deliver technology as a strategic capability,
-        not a support function.
+        We operate a distributed global delivery model supporting international
+        clients across time zones, industries and operating environments.
       </p>
       <blockquote class="who-quote">
-        <span class="qmark">"</span>We don't just deploy technology — we design
-        operational systems built for the way modern enterprises actually work.
+        <span class="qmark">&ldquo;</span>
+        Our role is not to supply tools. Our role is to design systems that make
+        organisations faster, leaner, more secure and more competitive.
       </blockquote>
-      <a href="{% url 'who_we_are' %}" class="btn-link-green">Learn more about us →</a>
+      <a href="{% url 'who_we_are' %}" class="btn-link-green">
+        Learn more about us &rarr;
+      </a>
     </div>
 
-    <div class="who-img-stack">
-      <div class="who-img-main">
-        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80" alt="Team collaboration"/>
-      </div>
-      <div class="who-img-accent">
-        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=80" alt="Strategy session"/>
-      </div>
-      <div class="who-tag-floating">
-        <span class="wtf-num">15+</span>
-        <span class="wtf-lbl">Years of<br>Excellence</span>
+    <div class="who-right">
+      <div class="who-img-stack">
+        <div class="who-img-main">
+          <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80"
+               alt="Tranter team" loading="lazy">
+        </div>
+        <div class="who-img-accent">
+          <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=500&q=80"
+               alt="Technology operations" loading="lazy">
+        </div>
+        <div class="who-tag-floating">
+          <span class="wtf-num">15+</span>
+          <span class="wtf-lbl">Years of<br>Operational Depth</span>
+        </div>
       </div>
     </div>
+
   </div>
 </section>
 
 
-<!-- ══════════════════════════════════ WHY TRANTER ══ -->
-<section class="section" id="why-tranter">
+{# ════════════════════════════════════ WHY TRANTER ══ #}
+<section class="section" id="why">
   <div class="why-grid">
-    <div>
-      <div class="eyebrow red">Why Tranter</div>
-      <h2 class="section-title" style="margin-bottom:44px;">
-        Built for<br>Enterprise<br>Partnerships
-      </h2>
+
+    <div class="why-left">
+      <div class="eyebrow green">Why Tranter</div>
+      <h2 class="section-title">Built for<br>Enterprise<br>Partnerships</h2>
       <div class="pillars">
-        {% for pillar in why_pillars %}
-          <div class="pillar {% if pillar.accent == 'red' %}red{% endif %}">
-            <div class="pillar-num {% if pillar.accent == 'red' %}r{% else %}g{% endif %}">
-              {{ forloop.counter|stringformat:"02d" }}
-            </div>
-            <div>
-              <div class="pillar-title">{{ pillar.title }}</div>
-              <div class="pillar-body">{{ pillar.body }}</div>
-            </div>
+        <div class="pillar">
+          <div class="pillar-num g">01</div>
+          <div>
+            <div class="pillar-title">Global Delivery Model</div>
+            <div class="pillar-body">A flexible model combining remote expertise and on-site support to deliver consistent technology services across regions and time zones.</div>
           </div>
-        {% empty %}
-          <div class="pillar">
-            <div class="pillar-num g">01</div>
-            <div>
-              <div class="pillar-title">Global Delivery Model</div>
-              <div class="pillar-body">A flexible model combining remote expertise and on-site support to deliver consistent technology services across regions and time zones.</div>
-            </div>
+        </div>
+        <div class="pillar red">
+          <div class="pillar-num r">02</div>
+          <div>
+            <div class="pillar-title">Enterprise-Grade Operations</div>
+            <div class="pillar-body">Secure infrastructure, governed processes, and SLA-driven performance ensuring reliability and scalability at enterprise scale.</div>
           </div>
-          <div class="pillar red">
-            <div class="pillar-num r">02</div>
-            <div>
-              <div class="pillar-title">Enterprise-Grade Operations</div>
-              <div class="pillar-body">Secure infrastructure, governed processes, and SLA-driven performance ensuring reliability and scalability at enterprise scale.</div>
-            </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-num g">03</div>
+          <div>
+            <div class="pillar-title">Strategic Partner Mindset</div>
+            <div class="pillar-body">We collaborate with leadership teams to design and manage technology systems that drive long-term operational efficiency.</div>
           </div>
-          <div class="pillar">
-            <div class="pillar-num g">03</div>
-            <div>
-              <div class="pillar-title">Strategic Partner Mindset</div>
-              <div class="pillar-body">We collaborate with leadership teams to design and manage technology systems that drive long-term operational efficiency.</div>
-            </div>
+        </div>
+        <div class="pillar red">
+          <div class="pillar-num r">04</div>
+          <div>
+            <div class="pillar-title">Decades of Operational Depth</div>
+            <div class="pillar-body">Extensive experience designing, implementing, and managing enterprise technology across complex, regulated industries.</div>
           </div>
-          <div class="pillar red">
-            <div class="pillar-num r">04</div>
-            <div>
-              <div class="pillar-title">Decades of Operational Depth</div>
-              <div class="pillar-body">Extensive experience designing, implementing, and managing enterprise technology across complex, regulated industries.</div>
-            </div>
-          </div>
-        {% endfor %}
+        </div>
       </div>
     </div>
 
-    <div>
-      {# ISO Certification Card #}
+    <div class="why-right">
       <div class="iso-card">
         <div class="iso-card-stripe"></div>
         <div class="iso-badge-row">
           <span class="iso-live-dot"></span>
           <span class="iso-badge-label">ISO Certified Operations</span>
         </div>
-        <div class="iso-card-title">Standards That<br>Protect Your Business</div>
-        <div class="iso-card-desc">
+        <h3 class="iso-card-title">Standards That<br>Protect Your Business</h3>
+        <p class="iso-card-desc">
           Our operations run on internationally recognized quality and security
-          management frameworks — protecting your IT infrastructure through global standards.
-        </div>
+          management frameworks — protecting your IT infrastructure through
+          global standards.
+        </p>
         <div class="iso-chips">
           <div class="iso-chip g">
             <span class="ic-code">ISO 9001</span>
-            <span class="ic-desc">Quality Management System</span>
+            <span class="ic-desc">Quality Management</span>
           </div>
           <div class="iso-chip r">
             <span class="ic-code">ISO 27001</span>
-            <span class="ic-desc">Information Security Mgmt</span>
+            <span class="ic-desc">Information Security</span>
           </div>
           <div class="iso-chip g">
             <span class="ic-code">ISO 20000</span>
-            <span class="ic-desc">IT Service Management</span>
+            <span class="ic-desc">IT Service Mgmt</span>
           </div>
           <div class="iso-chip r">
             <span class="ic-code">ISO 22301</span>
-            <span class="ic-desc">Business Continuity Mgmt</span>
+            <span class="ic-desc">Business Continuity</span>
           </div>
         </div>
       </div>
 
-      {# Performance Metrics Card #}
       <div class="perf-card">
         <div class="perf-label">Live Performance Metrics</div>
         <div class="perf-metrics">
           <div class="perf-m g">
-            <div class="perf-val">{{ site_stats.sla_percent|default:"99" }}<sup>%</sup></div>
+            <div class="perf-val">99<sup>%</sup></div>
             <div class="perf-lbl">SLA Uptime Rate</div>
           </div>
           <div class="perf-m r">
@@ -497,11 +509,12 @@
         </div>
       </div>
     </div>
+
   </div>
 </section>
 
 
-<!-- ══════════════════════════════════ SECTORS ══ -->
+{# ══════════════════════════════════════ SECTORS ══ #}
 <section class="section bg-off" id="sectors">
   <div class="section-hdr">
     <div>
@@ -513,30 +526,23 @@
       and high-growth environments globally.
     </p>
   </div>
-
   <div class="sectors-grid">
-    {% for sector in sectors %}
-      <a href="{% url 'sector_detail' slug=sector.slug %}"
-         class="sector-card {% if sector.accent == 'red' %}r{% else %}g{% endif %}">
-        <div class="sector-icon">{{ sector.icon }}</div>
-        <div class="sector-name">{{ sector.name }}</div>
-      </a>
-    {% empty %}
-      <div class="sector-card g"><div class="sector-icon">🏦</div><div class="sector-name">Financial Services</div></div>
-      <div class="sector-card r"><div class="sector-icon">⚡</div><div class="sector-name">Energy & Industrial</div></div>
-      <div class="sector-card g"><div class="sector-icon">🏭</div><div class="sector-name">Manufacturing</div></div>
-      <div class="sector-card r"><div class="sector-icon">🚛</div><div class="sector-name">Logistics & Supply Chain</div></div>
-      <div class="sector-card g"><div class="sector-icon">🏥</div><div class="sector-name">Healthcare</div></div>
-      <div class="sector-card r"><div class="sector-icon">🎓</div><div class="sector-name">Education</div></div>
-    {% endfor %}
+    <div class="sector-card g"><div class="sector-icon">&#x1F3E6;</div><div class="sector-name">Financial Services</div></div>
+    <div class="sector-card r"><div class="sector-icon">&#x26A1;</div><div class="sector-name">Energy &amp; Industrial</div></div>
+    <div class="sector-card g"><div class="sector-icon">&#x1F3ED;</div><div class="sector-name">Manufacturing</div></div>
+    <div class="sector-card r"><div class="sector-icon">&#x1F69B;</div><div class="sector-name">Logistics &amp; Supply Chain</div></div>
+    <div class="sector-card g"><div class="sector-icon">&#x1F3E5;</div><div class="sector-name">Healthcare</div></div>
+    <div class="sector-card r"><div class="sector-icon">&#x1F393;</div><div class="sector-name">Education</div></div>
   </div>
 </section>
 
 
-<!-- ══════════════════════════════════ PROCESS ══ -->
-<section class="section" id="how-we-work">
-  <div style="text-align:center; max-width:560px; margin:0 auto 68px;">
-    <div class="eyebrow green" style="justify-content:center;">Engagement Model</div>
+{# ════════════════════════════════════════ PROCESS ══ #}
+<section class="section" id="process">
+  <div style="text-align:center; max-width:560px; margin:0 auto 72px">
+    <div class="eyebrow green" style="justify-content:center">
+      Engagement Model
+    </div>
     <h2 class="section-title">A Strategy-Led<br>Partnership Process</h2>
   </div>
   <div class="process-track">
@@ -565,41 +571,109 @@
 </section>
 
 
-<!-- ══════════════════════════════════ CTA BAND ══ -->
+{# ══════════════════════════════════════ EVENTS ══ #}
+{% if events %}
+<section class="section bg-off" id="events">
+  <div class="section-hdr">
+    <div>
+      <div class="eyebrow red">On the Calendar</div>
+      <h2 class="section-title">Upcoming Events</h2>
+    </div>
+    <a href="{% url 'events' %}" class="btn-link-green">View all events &rarr;</a>
+  </div>
+  <div class="events-preview-grid">
+    {% for event in events %}
+    <div class="ev-card {% cycle '' 'red' '' %}">
+      <div class="ev-card-top">
+        <div class="ev-date-badge">
+          <span class="ev-day">{{ event.date|date:"d" }}</span>
+          <span class="ev-mon">{{ event.date|date:"M" }}</span>
+        </div>
+        <span class="ev-type">{% if event.is_online %}Virtual{% else %}In-Person{% endif %}</span>
+      </div>
+      <h3 class="ev-title">{{ event.title }}</h3>
+      <div class="ev-meta">
+        <span>&#x1F4CD; {{ event.location }}</span>
+        <span>{{ event.date|date:"g:i A" }} WAT</span>
+      </div>
+      <a href="{% url 'events' %}" class="ev-cta">Register &rarr;</a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+
+{# ══════════════════════════════════ INSIGHTS ══ #}
+{% if insights %}
+<section class="section" id="insights">
+  <div class="section-hdr">
+    <div>
+      <div class="eyebrow green">Intelligence</div>
+      <h2 class="section-title">Latest Insights</h2>
+    </div>
+    <a href="{% url 'insights' %}" class="btn-link-green">View all articles &rarr;</a>
+  </div>
+  <div class="insights-preview-grid">
+    {% for article in insights %}
+    <a href="{% url 'insights' %}"
+       class="ins-card {% if forloop.first %}featured{% endif %}">
+      <div class="ins-card-img">
+        <div class="ins-cat {% cycle 'g' 'r' 'g' %}">{{ article.category }}</div>
+      </div>
+      <div class="ins-body">
+        <h3 class="ins-title">{{ article.title }}</h3>
+        <div class="ins-meta">
+          <span class="ins-read">{{ article.read_time }} min read</span>
+          <span class="ins-arrow">&rarr;</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+
+{# ══════════════════════════════════════ CTA BAND ══ #}
 <div class="cta-band">
   <div class="cta-band-inner">
-    <div>
-      <span class="cta-eyebrow">Let's get started</span>
-      <h2 class="cta-title">Ready to power your<br>next phase of growth?</h2>
+    <div class="cta-text">
+      <span class="cta-eyebrow">Let&rsquo;s get started{% if is_nigeria %} in Nigeria{% endif %}</span>
+      <h2 class="cta-title">
+        {% if cta_content.text %}
+          {{ cta_content.text|safe }}
+        {% else %}
+          Ready to power your<br>next phase of growth?
+        {% endif %}
+      </h2>
       <p class="cta-sub">
-        Let's design the technology infrastructure your business deserves —
-        built for scale, security, and the long term.
+        {% if is_nigeria %}
+          Let&rsquo;s design the technology infrastructure your Nigerian business
+          deserves — built for scale, security, and the unique African market.
+        {% else %}
+          Let&rsquo;s design the technology infrastructure your business
+          deserves — built for scale, security, and the long term.
+        {% endif %}
       </p>
     </div>
     <div class="cta-actions">
-      <a href="{% url 'book_demo' %}" class="cta-btn-w">Book a Free Consultation →</a>
-      <a href="{% url 'services' %}" class="cta-btn-o">View All Services</a>
+      <a href="{% url 'contact' %}"  class="cta-btn-w">Book a Free Consultation &rarr;</a>
+      <a href="{% url 'what_we_do' %}" class="cta-btn-o">View All Services</a>
     </div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════ CLIENTS ══ -->
-<section class="section bg-off" id="clients">
-  <div style="text-align:center; max-width:480px; margin:0 auto 48px;">
-    <div class="eyebrow red" style="justify-content:center;">Client Portfolio</div>
-    <h2 class="section-title" style="font-size:42px;">Trusted by<br>Industry Leaders</h2>
+{# ═════════════════════════════════════ CLIENTS ══ #}
+<section class="section" id="clients">
+  <div style="text-align:center; max-width:480px; margin:0 auto 56px">
+    <div class="eyebrow red" style="justify-content:center">Client Portfolio</div>
+    <h2 class="section-title">Trusted by<br>{% if is_nigeria %}Nigeria's{% else %}Global{% endif %} Industry Leaders</h2>
   </div>
-
   <div class="clients-grid">
-    {% for client in all_clients %}
-      <div class="client-cell {% if client.accent == 'red' %}r{% endif %}">
-        {% if client.logo %}
-          <img src="{{ client.logo.url }}" alt="{{ client.name }}" />
-        {% else %}
-          {{ client.name }}
-        {% endif %}
-      </div>
+    {% for client in clients %}
+      <div class="client-cell {% cycle '' 'r' '' 'r' '' 'r' %}">{{ client }}</div>
     {% empty %}
       <div class="client-cell">GTBank</div>
       <div class="client-cell r">Zenith Bank</div>

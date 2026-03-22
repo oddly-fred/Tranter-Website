@@ -1,0 +1,498 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block page_title %}Leaderboard{% endblock %}
+
+{% block content %}
+<style>
+    .leaderboard-hero {
+        background: linear-gradient(135deg, #048042 0%, #036835 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .leaderboard-hero::before {
+        content: '🏆';
+        position: absolute;
+        font-size: 15rem;
+        opacity: 0.1;
+        top: -3rem;
+        right: -2rem;
+        transform: rotate(15deg);
+    }
+    .leaderboard-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    .leaderboard-hero p {
+        font-size: 1.125rem;
+        opacity: 0.95;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .stat-box {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid var(--border);
+        transition: all 0.3s;
+    }
+    .stat-box:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.25rem;
+    }
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--text-light);
+    }
+
+    .tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid var(--border);
+    }
+    .tab {
+        padding: 0.875rem 1.5rem;
+        background: none;
+        border: none;
+        color: var(--text-light);
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+    }
+    .tab:hover {
+        color: var(--primary);
+    }
+    .tab.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+
+    .podium {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        align-items: flex-end;
+    }
+    .podium-item {
+        text-align: center;
+        transition: all 0.3s;
+    }
+    .podium-item:hover {
+        transform: scale(1.05);
+    }
+    .podium-item:nth-child(2) {
+        order: -1;
+    }
+    
+    .podium-rank {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        box-shadow: 0 8px 20px rgba(251, 191, 36, 0.3);
+        position: relative;
+    }
+    .podium-item:first-child .podium-rank {
+        width: 100px;
+        height: 100px;
+        font-size: 3rem;
+        background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+        box-shadow: 0 12px 30px rgba(251, 191, 36, 0.5);
+    }
+    .podium-item:last-child .podium-rank {
+        background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+        box-shadow: 0 8px 20px rgba(148, 163, 184, 0.3);
+    }
+    
+    .podium-crown {
+        position: absolute;
+        top: -20px;
+        font-size: 1.5rem;
+        animation: float 2s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .podium-avatar {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 700;
+        border: 4px solid white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .podium-item:first-child .podium-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
+    }
+
+    .podium-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 2px solid var(--border);
+    }
+    .podium-item:first-child .podium-card {
+        border-color: #fbbf24;
+        box-shadow: 0 8px 25px rgba(251, 191, 36, 0.2);
+    }
+    .podium-item:nth-child(2) .podium-card {
+        border-color: #c0c0c0;
+    }
+    .podium-item:last-child .podium-card {
+        border-color: #cd7f32;
+    }
+
+    .podium-name {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+    }
+    .podium-role {
+        font-size: 0.875rem;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+    }
+    .podium-points {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    .podium-points small {
+        font-size: 0.875rem;
+        font-weight: 400;
+        color: var(--text-light);
+    }
+
+    .leaderboard-list {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+    }
+    .leaderboard-item {
+        display: grid;
+        grid-template-columns: 60px 60px 1fr auto auto;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+    .leaderboard-item:hover {
+        background: var(--bg);
+    }
+    .leaderboard-item:last-child {
+        border-bottom: none;
+    }
+
+    .rank-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: var(--text-light);
+    }
+    .rank-badge.top-10 {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+    }
+
+    .user-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1.125rem;
+    }
+
+    .user-info {
+        flex: 1;
+    }
+    .user-name {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 0.125rem;
+        color: var(--text);
+    }
+    .user-meta {
+        font-size: 0.875rem;
+        color: var(--text-light);
+    }
+
+    .user-points {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary);
+        text-align: right;
+    }
+    .user-points small {
+        font-size: 0.75rem;
+        font-weight: 400;
+        color: var(--text-light);
+        display: block;
+    }
+
+    .achievement-badges {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .achievement-badge {
+        font-size: 1.25rem;
+        cursor: help;
+        transition: transform 0.2s;
+    }
+    .achievement-badge:hover {
+        transform: scale(1.3);
+    }
+
+    .progress-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+    }
+    .trend-up {
+        color: #10b981;
+    }
+    .trend-down {
+        color: #ef4444;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-light);
+    }
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
+        .podium {
+            grid-template-columns: 1fr;
+        }
+        .podium-item:nth-child(2) {
+            order: 0;
+        }
+        .leaderboard-item {
+            grid-template-columns: 40px 40px 1fr;
+            gap: 0.75rem;
+        }
+        .achievement-badges {
+            display: none;
+        }
+    }
+</style>
+
+<!-- Hero Section -->
+<div class="leaderboard-hero">
+    <h1>🏆 Leaderboard</h1>
+    <p>Compete, achieve, and rise to the top!</p>
+</div>
+
+<!-- Quick Stats -->
+<div class="stats-grid">
+    <div class="stat-box">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">{{ leaderboard|length }}</div>
+        <div class="stat-label">Active Players</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-value">{{ total_points }}</div>
+        <div class="stat-label">Total Points Earned</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value">#{{ your_rank|default:"--" }}</div>
+        <div class="stat-label">Your Rank</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-icon">💪</div>
+        <div class="stat-value">{{ your_points|default:0 }}</div>
+        <div class="stat-label">Your Points</div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab active" onclick="filterLeaderboard('all')">All Time</button>
+    <button class="tab" onclick="filterLeaderboard('month')">This Month</button>
+    <button class="tab" onclick="filterLeaderboard('week')">This Week</button>
+</div>
+
+<!-- Top 3 Podium -->
+{% if leaderboard|length >= 3 %}
+<div class="podium">
+    <!-- 1st Place -->
+    <div class="podium-item">
+        <div class="podium-rank">
+            <span class="podium-crown">👑</span>
+            🥇
+        </div>
+        <div class="podium-avatar">{{ leaderboard.0.full_name|slice:":1"|upper }}</div>
+        <div class="podium-card">
+            <div class="podium-name">{{ leaderboard.0.full_name }}</div>
+            <div class="podium-role">{{ leaderboard.0.role }}</div>
+            <div class="podium-points">
+                {{ leaderboard.0.points }}
+                <small>points</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2nd Place -->
+    <div class="podium-item">
+        <div class="podium-rank">🥈</div>
+        <div class="podium-avatar">{{ leaderboard.1.full_name|slice:":1"|upper }}</div>
+        <div class="podium-card">
+            <div class="podium-name">{{ leaderboard.1.full_name }}</div>
+            <div class="podium-role">{{ leaderboard.1.role }}</div>
+            <div class="podium-points">
+                {{ leaderboard.1.points }}
+                <small>points</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3rd Place -->
+    <div class="podium-item">
+        <div class="podium-rank">🥉</div>
+        <div class="podium-avatar">{{ leaderboard.2.full_name|slice:":1"|upper }}</div>
+        <div class="podium-card">
+            <div class="podium-name">{{ leaderboard.2.full_name }}</div>
+            <div class="podium-role">{{ leaderboard.2.role }}</div>
+            <div class="podium-points">
+                {{ leaderboard.2.points }}
+                <small>points</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Full Leaderboard List -->
+<div class="leaderboard-list">
+    {% for item in leaderboard %}
+    <div class="leaderboard-item {% if item.user.id == request.user.id %}style="background: rgba(4, 128, 66, 0.05); border-left: 4px solid var(--primary);"{% endif %}>
+        
+        <!-- Rank -->
+        <div class="rank-badge {% if forloop.counter <= 10 %}top-10{% endif %}">
+            {{ forloop.counter }}
+        </div>
+
+        <!-- Avatar -->
+        <div class="user-avatar" style="background: {% cycle '#048042' '#3b82f6' '#8b5cf6' '#f59e0b' '#ef4444' %}">
+            {{ item.full_name|slice:":1"|upper }}
+        </div>
+
+        <!-- User Info -->
+        <div class="user-info">
+            <div class="user-name">
+                {{ item.full_name }}
+                {% if item.user.id == request.user.id %}
+                    <span style="color: var(--primary); font-size: 0.875rem;">(You)</span>
+                {% endif %}
+            </div>
+            <div class="user-meta">
+                {{ item.role|title }}
+                {% if item.tasks_completed %}
+                    • {{ item.tasks_completed }} tasks completed
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="achievement-badges">
+            {% if forloop.counter == 1 %}🏆{% endif %}
+            {% if item.points >= 500 %}⭐{% endif %}
+            {% if item.points >= 1000 %}💎{% endif %}
+            {% if item.tasks_completed >= 50 %}🔥{% endif %}
+        </div>
+
+        <!-- Points -->
+        <div class="user-points">
+            {{ item.points }}
+            <small>points</small>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🏆</div>
+        <h3>No rankings yet</h3>
+        <p>Complete tasks to earn points and climb the leaderboard!</p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+function filterLeaderboard(period) {
+    // Update active tab
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // In production, you'd fetch filtered data via AJAX
+    console.log('Filter by:', period);
+    // For now, just visual feedback
+}
+</script>
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}{{ project.name }}{% endblock %}
+
+{% block content %}
+<style>
+    .project-header {
+        background: linear-gradient(135deg, {{ project.color }} 0%, {{ project.color }}dd 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .back-link {
+        color: white;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
+    .back-link:hover {
+        opacity: 1;
+    }
+</style>
+
+<!-- Project Header -->
+<div class="project-header">
+    <a href="{% url 'dashboard:project_list' %}" class="back-link">← Back to Projects</a>
+    <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">{{ project.name }}</h1>
+    <p style="opacity: 0.95;">{{ project.description }}</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.5rem;">
+        <div style="background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 8px;">
+            <div style="font-size: 1.75rem; font-weight: 700;">{{ stats.total }}</div>
+            <div style="font-size: 0.875rem; opacity: 0.9;">Total Tasks</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 8px;">
+            <div style="font-size: 1.75rem; font-weight: 700;">{{ stats.pending }}</div>
+            <div style="font-size: 0.875rem; opacity: 0.9;">Pending</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 8px;">
+            <div style="font-size: 1.75rem; font-weight: 700;">{{ stats.in_progress }}</div>
+            <div style="font-size: 0.875rem; opacity: 0.9;">In Progress</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 8px;">
+            <div style="font-size: 1.75rem; font-weight: 700;">{{ stats.completed }}</div>
+            <div style="font-size: 0.875rem; opacity: 0.9;">Completed</div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Task Button -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <h2 style="font-size: 1.5rem; font-weight: 600;">Tasks</h2>
+    <button class="btn btn-primary" onclick="openTaskModal()">+ Add Task</button>
+</div>
+
+<!-- Tasks List -->
+<div class="card">
+    {% for task in tasks %}
+    <div class="modern-task-card" onclick="window.location.href='{% url 'dashboard:task_detail' task.pk %}'">
+        <div class="task-header-row">
+            <div class="task-title-modern">{{ task.title }}</div>
+            <div class="task-priority-dot {{ task.priority }}"></div>
+        </div>
+        <div class="task-meta-row">
+            <span class="badge-modern {{ task.status }}">{{ task.get_status_display }}</span>
+            {% if task.due_date %}
+            <span>📅 {{ task.due_date|date:"M d" }}</span>
+            {% endif %}
+            {% if task.assigned_to %}
+            <span>👤 {{ task.assigned_to.first_name|default:task.assigned_to.username }}</span>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div style="text-align: center; padding: 3rem; color: var(--text-light);">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+        <p>No tasks yet. Click "Add Task" to get started!</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Task Creation Modal -->
+<div class="modal" id="task-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Add Task to {{ project.name }}</h2>
+            <button class="modal-close" onclick="closeTaskModal()">×</button>
+        </div>
+
+        <form method="POST" action="{% url 'dashboard:task_create' %}">
+            {% csrf_token %}
+            <input type="hidden" name="project" value="{{ project.pk }}">
+            
+            <div style="margin-bottom: 1rem;">
+                <label>Task Title *</label>
+                <input type="text" name="title" class="form-input" placeholder="What needs to be done?" required>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label>Description</label>
+                <textarea name="description" class="form-input" rows="3" placeholder="Add details..."></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label>Priority</label>
+                    <select name="priority" class="form-select">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Status</label>
+                    <select name="status" class="form-select">
+                        <option value="pending" selected>Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="review">In Review</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label>Due Date</label>
+                <input type="datetime-local" name="due_date" class="form-input">
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Create Task</button>
+                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeTaskModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openTaskModal() {
+    document.getElementById('task-modal').classList.add('active');
+}
+
+function closeTaskModal() {
+    document.getElementById('task-modal').classList.remove('active');
+}
+</script>
+{% endblock %}

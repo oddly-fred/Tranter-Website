@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - AI Command Center</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, sans-serif; background: linear-gradient(135deg, #048042 0%, #023020 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 0; }
+        .login-card { background: white; padding: 3rem; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        .logo { text-align: center; font-size: 2rem; margin-bottom: 2rem; }
+        .form-input { width: 100%; padding: 0.875rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 1rem; font-size: 1rem; }
+        .form-input:focus { outline: none; border-color: #048042; }
+        .btn { width: 100%; padding: 0.875rem; background: #048042; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 0.5rem; }
+        .btn:hover { background: #036835; }
+        .link { text-align: center; margin-top: 1.5rem; color: #64748b; }
+        .link a { color: #048042; text-decoration: none; font-weight: 500; }
+        .errorlist { list-style: none; background: #fee2e2; color: #b91c1c; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo">🤖 Create Account</div>
+
+        {% if form.non_field_errors %}
+            <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            {% if form.email.errors %}<ul class="errorlist">{% for error in form.email.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            {{ form.email }}
+            
+            {% if form.first_name.errors %}<ul class="errorlist">{% for error in form.first_name.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            {{ form.first_name }}
+            
+            {% if form.last_name.errors %}<ul class="errorlist">{% for error in form.last_name.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            {{ form.last_name }}
+            
+            {% if form.password1.errors %}<ul class="errorlist">{% for error in form.password1.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            {{ form.password1 }}
+            
+            {% if form.password2.errors %}<ul class="errorlist">{% for error in form.password2.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            {{ form.password2 }}
+            
+            <button type="submit" class="btn">Create Account</button>
+        </form>
+
+        <p class="link">Already have an account? <a href="{% url 'dashboard:login' %}">Sign In</a></p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,842 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Insights{% endblock %}
+{% block meta_description %}Tranter IT insights — enterprise technology research, reports, articles and videos for IT leaders across Nigeria and globally.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+
+/* ════════════════════════════════════════════════
+   insights.html — layout only.
+   Colour / font / shadow tokens from home.css
+════════════════════════════════════════════════ */
+
+/* ── MASTHEAD ───────────────────────────────────── */
+.ins-masthead {
+  position: relative; overflow: hidden;
+  background: var(--ink);
+  padding: calc(var(--nav-h) + 80px) 52px 72px;
+}
+.ins-masthead::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(17,135,75,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17,135,75,.07) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+.ins-glow-g {
+  position: absolute; top: -120px; right: -120px;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(17,135,75,.13), transparent 65%);
+  pointer-events: none;
+}
+.ins-glow-r {
+  position: absolute; bottom: -80px; left: 200px;
+  width: 400px; height: 400px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(137,18,25,.09), transparent 65%);
+  pointer-events: none;
+}
+.ins-masthead-inner {
+  position: relative; z-index: 1;
+  max-width: 1280px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 340px; gap: 56px; align-items: center;
+}
+
+/* Giant editorial headline */
+.ins-masthead-label {
+  font-family: var(--f-mono); font-size: 10.5px;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--green-light); display: block; margin-bottom: 16px;
+}
+.ins-masthead-title {
+  font-family: var(--f-display);
+  font-size: clamp(48px, 7vw, 96px);
+  font-weight: 800; line-height: .95;
+  letter-spacing: -3px; color: #fff;
+  border-bottom: 1.5px solid rgba(255,255,255,.1);
+  padding-bottom: 20px; margin-bottom: 20px;
+}
+.ins-masthead-sub {
+  font-size: 15px; font-weight: 300;
+  color: rgba(255,255,255,.45); line-height: 1.8;
+  max-width: 540px; margin-bottom: 28px;
+}
+
+/* Category filter pills in masthead */
+.ins-filter-pills { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 10px; }
+.ins-pill {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 1.2px;
+  text-transform: uppercase; padding: 6px 14px;
+  border-radius: 100px; cursor: pointer; transition: all .2s;
+  border: 1px solid rgba(255,255,255,.13);
+  background: rgba(255,255,255,.06); color: rgba(255,255,255,.5);
+  text-decoration: none;
+}
+.ins-pill:hover { color: #fff; border-color: rgba(255,255,255,.35); }
+.ins-pill.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+/* Type pills */
+.ins-type-pills { display: flex; gap: 7px; flex-wrap: wrap; }
+.ins-type-pill {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 1.2px;
+  text-transform: uppercase; padding: 5px 12px;
+  border-radius: 100px; cursor: pointer; transition: all .2s;
+  border: 1px solid rgba(255,255,255,.1);
+  background: transparent; color: rgba(255,255,255,.38);
+  text-decoration: none;
+}
+.ins-type-pill:hover { color: rgba(255,255,255,.7); }
+.ins-type-pill.active { background: var(--red); color: #fff; border-color: var(--red); }
+
+/* Masthead right — search + stats */
+.ins-masthead-right {}
+.ins-search-wrap {
+  position: relative; margin-bottom: 24px;
+}
+.ins-search-wrap input {
+  width: 100%; font-family: var(--f-body); font-size: 14px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: var(--r-md); padding: 13px 16px 13px 44px;
+  color: #fff; outline: none; transition: all .2s;
+}
+.ins-search-wrap input::placeholder { color: rgba(255,255,255,.3); }
+.ins-search-wrap input:focus { border-color: var(--green-border); background: rgba(255,255,255,.1); }
+.ins-search-icon {
+  position: absolute; left: 14px; top: 50%;
+  transform: translateY(-50%); font-size: 16px;
+  color: rgba(255,255,255,.3); pointer-events: none;
+}
+.ins-search-wrap button {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 1.2px;
+  text-transform: uppercase; color: var(--green-light);
+  background: none; border: none; cursor: pointer;
+}
+
+/* Masthead geo badge */
+.ins-geo-badge {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--r-sm); padding: 12px 16px;
+}
+.ins-geo-flag { font-size: 22px; }
+.ins-geo-text { font-size: 12.5px; color: rgba(255,255,255,.45); font-weight: 300; line-height: 1.5; }
+.ins-geo-text strong { color: rgba(255,255,255,.75); display: block; }
+
+
+/* ── FEATURED INSIGHT ───────────────────────────── */
+.ins-featured { border-bottom: 1px solid var(--rule); }
+.ins-feat-inner {
+  display: grid; grid-template-columns: 1fr 420px;
+  max-width: 1280px; margin: 0 auto; min-height: 480px;
+}
+.ins-feat-img {
+  position: relative; overflow: hidden;
+}
+.ins-feat-img img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .6s ease;
+}
+.ins-feat-img:hover img { transform: scale(1.03); }
+.ins-feat-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 60%, rgba(247,250,246,.98));
+}
+
+.ins-feat-content {
+  padding: 52px 52px 52px 48px;
+  display: flex; flex-direction: column; justify-content: center;
+  background: var(--offwhite);
+}
+.ins-feat-badges { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.ins-badge {
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 4px 10px; border-radius: 4px;
+}
+.ins-badge.type-g { background: var(--green-pale); color: var(--green); border: 1px solid var(--green-border); }
+.ins-badge.type-r { background: var(--red-pale);   color: var(--red);   border: 1px solid var(--red-border); }
+.ins-badge.premium { background: var(--ink); color: #f59e0b; border: 1px solid rgba(245,158,11,.3); }
+.ins-badge.sponsored { background: rgba(17,135,75,.12); color: var(--green); border: 1px solid var(--green-border); }
+.ins-badge.featured { background: var(--red); color: #fff; }
+
+.ins-feat-title {
+  font-family: var(--f-display); font-size: clamp(22px, 2.8vw, 34px);
+  font-weight: 800; letter-spacing: -1px; color: var(--ink);
+  margin-bottom: 14px; line-height: 1.15;
+  transition: color .2s;
+}
+.ins-feat-img:hover + .ins-feat-content .ins-feat-title,
+a:hover .ins-feat-title { color: var(--green); }
+.ins-feat-excerpt {
+  font-size: 15px; font-weight: 300; color: var(--body-text);
+  line-height: 1.82; margin-bottom: 22px;
+}
+.ins-feat-meta {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 12.5px; color: var(--muted); margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.ins-feat-meta-dot { color: var(--rule); }
+.ins-feat-tags { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 24px; }
+.ins-tag {
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 1px;
+  padding: 4px 10px; border-radius: 4px;
+  background: var(--white); border: 1px solid var(--rule); color: var(--muted);
+  transition: all .2s;
+}
+.ins-tag:hover { border-color: var(--green-border); color: var(--green); }
+.ins-feat-read {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--f-body); font-size: 14px; font-weight: 600;
+  color: var(--green); border-bottom: 1.5px solid var(--green-border);
+  padding-bottom: 2px; transition: all .2s; width: fit-content;
+}
+.ins-feat-read:hover { gap: 12px; border-color: var(--green); }
+
+
+/* ── POPULAR STRIP ──────────────────────────────── */
+.ins-popular-strip {
+  background: var(--white); border-bottom: 1px solid var(--rule);
+  padding: 0 52px;
+}
+.ins-popular-inner {
+  display: flex; align-items: stretch;
+  max-width: 1280px; margin: 0 auto; gap: 0;
+}
+.ins-popular-label {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; padding: 16px 24px 16px 0;
+  border-right: 1px solid var(--rule); flex-shrink: 0;
+  white-space: nowrap;
+}
+.ins-popular-items { display: flex; flex: 1; }
+.ins-popular-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 24px; border-right: 1px solid var(--rule);
+  flex: 1; transition: background .2s; text-decoration: none;
+}
+.ins-popular-item:hover { background: var(--green-xpale); }
+.ins-popular-num {
+  font-family: var(--f-display); font-size: 22px; font-weight: 800;
+  color: var(--rule); flex-shrink: 0; line-height: 1;
+}
+.ins-popular-item:hover .ins-popular-num { color: var(--green); }
+.ins-popular-title {
+  font-family: var(--f-display); font-size: 13px;
+  font-weight: 700; color: var(--ink); line-height: 1.3;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.ins-popular-views { font-size: 11px; color: var(--muted); font-family: var(--f-mono); }
+
+
+/* ── INSIGHTS GRID ──────────────────────────────── */
+.ins-grid-section { padding: 72px 52px; }
+.ins-grid-inner { max-width: 1280px; margin: 0 auto; }
+.ins-grid-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 40px; flex-wrap: wrap; gap: 16px;
+}
+.ins-results-label {
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--muted);
+}
+
+/* Masonry grid */
+.ins-masonry { columns: 3; column-gap: 20px; }
+.ins-masonry-item { break-inside: avoid; margin-bottom: 20px; }
+
+/* Card — svc-card DNA from home.css */
+.ins-card {
+  background: var(--white); border: 1px solid var(--rule);
+  border-radius: var(--r-lg); overflow: hidden;
+  transition: all .35s; display: flex; flex-direction: column;
+  position: relative;
+  opacity: 0; transform: translateY(16px);
+}
+.ins-card.in-view { opacity: 1; transform: translateY(0); }
+.ins-card::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 0; right: 0; height: 3px;
+  background: var(--green); transform: scaleX(0);
+  transform-origin: left; transition: transform .35s;
+}
+.ins-card.red::after { background: var(--red); }
+.ins-card:hover { transform: translateY(-5px); box-shadow: var(--sh-lg); border-color: var(--green-border); }
+.ins-card.red:hover { border-color: var(--red-border); box-shadow: var(--sh-red); }
+.ins-card:hover::after { transform: scaleX(1); }
+
+/* Card image */
+.ins-card-img {
+  position: relative; overflow: hidden;
+  aspect-ratio: 16/9;
+}
+.ins-card-img img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .45s ease;
+}
+.ins-card:hover .ins-card-img img { transform: scale(1.05); }
+.ins-card-img-placeholder {
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, var(--green-pale), var(--offwhite));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+}
+
+/* Image overlay badges */
+.ins-card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(20,26,20,.55) 0%, transparent 60%);
+}
+.ins-card-type-badge {
+  position: absolute; top: 12px; left: 12px;
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 1.2px;
+  text-transform: uppercase; color: #fff;
+  background: rgba(17,135,75,.85); padding: 4px 10px;
+  border-radius: 4px; backdrop-filter: blur(4px);
+}
+.ins-card.red .ins-card-type-badge { background: rgba(137,18,25,.85); }
+.ins-premium-badge {
+  position: absolute; top: 12px; right: 12px;
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: 1px;
+  color: #f59e0b; background: rgba(20,26,20,.8);
+  padding: 4px 9px; border-radius: 4px; backdrop-filter: blur(4px);
+  border: 1px solid rgba(245,158,11,.3);
+}
+.ins-sponsored-badge {
+  position: absolute; bottom: 10px; right: 10px;
+  font-family: var(--f-mono); font-size: 9px;
+  color: rgba(255,255,255,.6); background: rgba(20,26,20,.6);
+  padding: 3px 8px; border-radius: 3px;
+}
+
+/* Video play overlay */
+.ins-play-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .3s;
+}
+.ins-card:hover .ins-play-overlay { opacity: 1; }
+.ins-play-btn {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: rgba(137,18,25,.85); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #fff;
+  transition: transform .2s;
+}
+.ins-card:hover .ins-play-btn { transform: scale(1.1); }
+
+/* Card body */
+.ins-card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+.ins-card-cat {
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 1.8px;
+  text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+}
+.ins-card.red .ins-card-cat { color: var(--red); }
+.ins-card-title {
+  font-family: var(--f-display); font-size: 16px; font-weight: 700;
+  color: var(--ink); line-height: 1.3; margin-bottom: 8px; flex: 1;
+}
+.ins-card-excerpt {
+  font-size: 13px; color: var(--body-text); font-weight: 300;
+  line-height: 1.7; margin-bottom: 14px;
+}
+
+/* Card footer */
+.ins-card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid var(--rule); padding-top: 12px; gap: 8px;
+}
+.ins-card-meta-row {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11.5px; color: var(--muted);
+}
+.ins-card-likes {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--muted); cursor: pointer;
+  transition: color .2s; background: none; border: none; font-family: var(--f-body);
+  padding: 0;
+}
+.ins-card-likes:hover { color: var(--red); }
+.ins-card-likes.liked { color: var(--red); }
+
+/* Card actions bar (share + read) */
+.ins-card-actions {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-top: 1px solid var(--rule);
+  background: var(--offwhite);
+}
+.ins-share-btn {
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 1px;
+  color: var(--muted); background: none; border: none; cursor: pointer;
+  padding: 4px 8px; border-radius: 4px; transition: all .2s;
+}
+.ins-share-btn:hover { background: var(--white); color: var(--ink); }
+.ins-read-link {
+  margin-left: auto; font-size: 12.5px; font-weight: 600;
+  color: var(--green); transition: letter-spacing .2s;
+}
+.ins-card.red .ins-read-link { color: var(--red); }
+.ins-card:hover .ins-read-link { letter-spacing: .3px; }
+
+
+/* ── NEWSLETTER CTA ─────────────────────────────── */
+.ins-newsletter {
+  background: var(--ink); padding: 72px 52px;
+  position: relative; overflow: hidden;
+}
+.ins-newsletter::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(17,135,75,.07) 1px, transparent 1px);
+  background-size: 36px 36px; pointer-events: none;
+}
+.ins-nl-inner {
+  display: grid; grid-template-columns: 1fr 420px;
+  gap: 60px; align-items: center;
+  max-width: 1280px; margin: 0 auto; position: relative; z-index: 1;
+}
+.ins-nl-title {
+  font-family: var(--f-display); font-size: clamp(26px, 3.5vw, 42px);
+  font-weight: 800; letter-spacing: -1.2px; color: #fff; margin-bottom: 12px;
+  margin-top: 14px;
+}
+.ins-nl-sub {
+  font-size: 15px; color: rgba(255,255,255,.5);
+  font-weight: 300; line-height: 1.8;
+}
+.ins-nl-form { display: flex; flex-direction: column; gap: 12px; }
+.ins-nl-form-row { display: flex; gap: 10px; }
+.ins-nl-input {
+  flex: 1; font-family: var(--f-body); font-size: 14px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+  border-radius: var(--r-sm); padding: 13px 16px; color: #fff; outline: none;
+  transition: all .2s;
+}
+.ins-nl-input::placeholder { color: rgba(255,255,255,.3); }
+.ins-nl-input:focus { border-color: var(--green-border); background: rgba(255,255,255,.12); }
+.ins-nl-btn {
+  font-family: var(--f-body); font-size: 14px; font-weight: 600;
+  color: #fff; background: var(--green); border: none;
+  padding: 13px 24px; border-radius: var(--r-sm); cursor: pointer;
+  transition: all .25s; white-space: nowrap;
+  box-shadow: 0 3px 14px rgba(17,135,75,.4);
+}
+.ins-nl-btn:hover { background: var(--green-mid); transform: translateY(-1px); }
+.ins-nl-note {
+  font-size: 11.5px; color: rgba(255,255,255,.3);
+  display: flex; align-items: center; gap: 6px;
+}
+
+
+/* ── EMPTY STATE ────────────────────────────────── */
+.ins-empty {
+  text-align: center; padding: 80px 24px; color: var(--muted); grid-column: span 3;
+}
+.ins-empty-icon { font-size: 48px; margin-bottom: 16px; }
+.ins-empty h3 {
+  font-family: var(--f-display); font-size: 22px;
+  font-weight: 700; color: var(--ink); margin-bottom: 8px;
+}
+
+
+/* ── RESPONSIVE ─────────────────────────────────── */
+@media (max-width: 1100px) {
+  .ins-masthead { padding: calc(var(--nav-h) + 48px) 24px 56px; }
+  .ins-masthead-inner { grid-template-columns: 1fr; }
+  .ins-masthead-right { display: none; }
+  .ins-feat-inner { grid-template-columns: 1fr; }
+  .ins-feat-img { aspect-ratio: 16/8; }
+  .ins-feat-img-overlay { background: linear-gradient(to top, rgba(247,250,246,.98) 0%, transparent 60%); }
+  .ins-feat-content { padding: 32px 24px; }
+  .ins-popular-strip { padding: 0 24px; }
+  .ins-grid-section { padding: 52px 24px; }
+  .ins-masonry { columns: 2; }
+  .ins-newsletter { padding: 52px 24px; }
+  .ins-nl-inner { grid-template-columns: 1fr; gap: 32px; }
+}
+@media (max-width: 640px) {
+  .ins-masonry { columns: 1; }
+  .ins-popular-items { flex-direction: column; }
+  .ins-popular-item { border-right: none; border-bottom: 1px solid var(--rule); }
+  .ins-nl-form-row { flex-direction: column; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+{# ══ MASTHEAD ══ #}
+<div class="ins-masthead">
+  <div class="ins-glow-g"></div>
+  <div class="ins-glow-r"></div>
+  <div class="ins-masthead-inner">
+
+    <div>
+      <span class="ins-masthead-label">
+        Tranter Intelligence &middot;
+        {% if is_nigeria %}Nigeria Edition 🇳🇬{% else %}Global Edition 🌍{% endif %}
+      </span>
+      <h1 class="ins-masthead-title">Insights</h1>
+      <p class="ins-masthead-sub">
+        Research, reports and perspectives for enterprise technology leaders
+        {% if is_nigeria %}across Nigeria and Africa{% else %}worldwide{% endif %}.
+      </p>
+
+      {# Category filters #}
+      <div class="ins-filter-pills">
+        {% for cat in categories %}
+        <a href="?cat={{ cat.slug }}{% if active_type != 'all' %}&type={{ active_type }}{% endif %}{% if search_q %}&q={{ search_q }}{% endif %}"
+           class="ins-pill {% if active_cat == cat.slug %}active{% endif %}">
+          {{ cat.icon }} {{ cat.label }}
+        </a>
+        {% endfor %}
+      </div>
+
+      {# Type filters #}
+      <div class="ins-type-pills" style="margin-top:10px">
+        {% for t in types %}
+        <a href="?type={{ t.slug }}{% if active_cat != 'all' %}&cat={{ active_cat }}{% endif %}{% if search_q %}&q={{ search_q }}{% endif %}"
+           class="ins-type-pill {% if active_type == t.slug %}active{% endif %}">
+          {{ t.icon }} {{ t.label }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# Right: search + geo badge #}
+    <div class="ins-masthead-right">
+      <form method="GET" action="{% url 'insights' %}" class="ins-search-wrap">
+        <span class="ins-search-icon">🔍</span>
+        <input type="text" name="q" value="{{ search_q }}"
+               placeholder="Search insights, reports, topics…">
+        {% if active_cat != 'all' %}<input type="hidden" name="cat" value="{{ active_cat }}">{% endif %}
+        {% if active_type != 'all' %}<input type="hidden" name="type" value="{{ active_type }}">{% endif %}
+        <button type="submit">Search</button>
+      </form>
+
+      <div class="ins-geo-badge">
+        <span class="ins-geo-flag">{% if is_nigeria %}🇳🇬{% else %}🌍{% endif %}</span>
+        <div class="ins-geo-text">
+          <strong>{% if is_nigeria %}Nigeria Edition{% else %}Global Edition{% endif %}</strong>
+          {% if is_nigeria %}
+            Showing insights relevant to Nigerian enterprise leaders.
+          {% else %}
+            Showing global insights for international enterprise leaders.
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+{# ══ FEATURED INSIGHT ══ #}
+{% if featured %}
+<div class="ins-featured">
+  <div class="ins-feat-inner">
+    <a href="{% url 'insight_detail' slug=featured.slug %}" class="ins-feat-img">
+      {% if featured.cover %}
+        <img src="{{ featured.cover }}" alt="{{ featured.title }}">
+      {% endif %}
+      <div class="ins-feat-img-overlay"></div>
+    </a>
+
+    <div class="ins-feat-content">
+      <div class="ins-feat-badges">
+        <span class="ins-badge featured">★ Featured</span>
+        <span class="ins-badge {% if featured.accent == 'red' %}type-r{% else %}type-g{% endif %}">
+          {{ featured.type_icon }} {{ featured.type_label }}
+        </span>
+        {% if featured.is_premium %}
+          <span class="ins-badge premium">⭐ Premium</span>
+        {% endif %}
+      </div>
+
+      <a href="{% url 'insight_detail' slug=featured.slug %}">
+        <h2 class="ins-feat-title">{{ featured.title }}</h2>
+      </a>
+      <p class="ins-feat-excerpt">{{ featured.excerpt }}</p>
+
+      <div class="ins-feat-meta">
+        {% if featured.author_name %}<span>{{ featured.author_name }}</span>{% endif %}
+        {% if featured.author_role %}<span class="ins-feat-meta-dot">&middot;</span><span>{{ featured.author_role }}</span>{% endif %}
+        <span class="ins-feat-meta-dot">&middot;</span>
+        <span>{{ featured.published_at }}</span>
+        <span class="ins-feat-meta-dot">&middot;</span>
+        <span>{{ featured.read_time }} min read</span>
+      </div>
+
+      <div class="ins-feat-tags">
+        {% for tag in featured.tags %}
+          <span class="ins-tag">{{ tag }}</span>
+        {% endfor %}
+      </div>
+
+      <a href="{% url 'insight_detail' slug=featured.slug %}" class="ins-feat-read">
+        Read Article
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true">
+          <path d="M1 5h12M8 1l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+{# ══ POPULAR STRIP ══ #}
+{% if popular %}
+<div class="ins-popular-strip">
+  <div class="ins-popular-inner">
+    <span class="ins-popular-label">Most Read</span>
+    <div class="ins-popular-items">
+      {% for art in popular %}
+      <a href="{% url 'insight_detail' slug=art.slug %}" class="ins-popular-item">
+        <span class="ins-popular-num">0{{ forloop.counter }}</span>
+        <div>
+          <div class="ins-popular-title">{{ art.title }}</div>
+          <div class="ins-popular-views">{{ art.views|stringformat:"d" }} views</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+{# ══ INSIGHTS MASONRY GRID ══ #}
+<section class="ins-grid-section">
+  <div class="ins-grid-inner">
+
+    <div class="ins-grid-header">
+      <div>
+        <div class="eyebrow green">All Insights</div>
+        <p class="ins-results-label">
+          {% if insights %}{{ insights|length }} insight{{ insights|length|pluralize }} found{% endif %}
+          {% if search_q %} for &ldquo;{{ search_q }}&rdquo;{% endif %}
+        </p>
+      </div>
+      {# Mobile search #}
+      <form method="GET" action="{% url 'insights' %}" style="display:flex;gap:8px">
+        {% if active_cat != 'all' %}<input type="hidden" name="cat" value="{{ active_cat }}">{% endif %}
+        {% if active_type != 'all' %}<input type="hidden" name="type" value="{{ active_type }}">{% endif %}
+        <input type="text" name="q" value="{{ search_q }}"
+               placeholder="Search…"
+               style="font-family:var(--f-body);font-size:13px;border:1px solid var(--rule);
+                      border-radius:var(--r-sm);padding:8px 14px;outline:none;
+                      color:var(--ink);background:var(--white);">
+      </form>
+    </div>
+
+    {% if insights %}
+    <div class="ins-masonry" id="insMasonry">
+      {% for art in insights %}
+      <div class="ins-masonry-item">
+        <div class="ins-card {% if art.accent == 'red' %}red{% endif %}"
+             data-type="{{ art.insight_type }}"
+             data-cat="{{ art.category_slug }}">
+
+          {# Image #}
+          <div class="ins-card-img">
+            {% if art.cover %}
+              <img src="{{ art.cover }}" alt="{{ art.title }}" loading="lazy">
+            {% else %}
+              <div class="ins-card-img-placeholder">{{ art.type_icon }}</div>
+            {% endif %}
+            <div class="ins-card-overlay"></div>
+            <span class="ins-card-type-badge">{{ art.type_icon }} {{ art.type_label }}</span>
+            {% if art.is_premium %}
+              <span class="ins-premium-badge">⭐ Premium</span>
+            {% endif %}
+            {% if art.is_sponsored %}
+              <span class="ins-sponsored-badge">Sponsored</span>
+            {% endif %}
+            {% if art.insight_type == 'video' %}
+              <div class="ins-play-overlay">
+                <div class="ins-play-btn">▶</div>
+              </div>
+            {% endif %}
+          </div>
+
+          {# Body #}
+          <div class="ins-card-body">
+            <div class="ins-card-cat">{{ art.category }}</div>
+            <h3 class="ins-card-title">{{ art.title }}</h3>
+            <p class="ins-card-excerpt">{{ art.excerpt|truncatewords:22 }}</p>
+
+            <div class="ins-card-footer">
+              <div class="ins-card-meta-row">
+                <span>{{ art.read_time }}min</span>
+                <span style="color:var(--rule)">·</span>
+                <span>{{ art.published_at }}</span>
+              </div>
+              <button class="ins-card-likes" onclick="toggleLike(this, {{ art.id }})"
+                      data-count="{{ art.likes }}"
+                      title="Like this insight">
+                ♡ <span>{{ art.likes }}</span>
+              </button>
+            </div>
+          </div>
+
+          {# Actions bar #}
+          <div class="ins-card-actions">
+            <button class="ins-share-btn"
+                    onclick="shareInsight('{{ art.title|escapejs }}', window.location.origin + '{% url 'insight_detail' slug=art.slug %}')">
+              LinkedIn
+            </button>
+            <button class="ins-share-btn"
+                    onclick="shareTwitter('{{ art.title|escapejs }}', window.location.origin + '{% url 'insight_detail' slug=art.slug %}')">
+              𝕏 Share
+            </button>
+            {% if art.pdf_label %}
+              <button class="ins-share-btn">⬇ {{ art.pdf_label }}</button>
+            {% endif %}
+            <a href="{% url 'insight_detail' slug=art.slug %}" class="ins-read-link">
+              Read &rarr;
+            </a>
+          </div>
+
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="ins-empty">
+      <div class="ins-empty-icon">📄</div>
+      <h3>No insights found</h3>
+      <p>Try a different filter or search term.</p>
+      <a href="{% url 'insights' %}"
+         style="display:inline-block;margin-top:16px;font-size:14px;font-weight:600;color:var(--green)">
+        Clear filters &rarr;
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+
+{# ══ NEWSLETTER CTA ══ #}
+<div class="ins-newsletter">
+  <div class="ins-nl-inner">
+    <div>
+      <div class="eyebrow green">Stay Informed</div>
+      <h2 class="ins-nl-title">Get Insights in<br>Your Inbox.</h2>
+      <p class="ins-nl-sub">
+        Join 2,000+ enterprise leaders receiving Tranter&rsquo;s monthly intelligence
+        brief — research, reports and analysis
+        {% if is_nigeria %}relevant to Nigerian enterprises{% else %}for global enterprise leaders{% endif %}.
+      </p>
+    </div>
+
+    <div>
+      <form class="ins-nl-form" onsubmit="handleNewsletter(event)">
+        {% csrf_token %}
+        <div class="ins-nl-form-row">
+          <input class="ins-nl-input" type="text" name="name"
+                 placeholder="Your name" required>
+        </div>
+        <div class="ins-nl-form-row">
+          <input class="ins-nl-input" type="email" name="email"
+                 placeholder="Work email address" required>
+          <button class="ins-nl-btn" type="submit" id="nlBtn">
+            Subscribe &rarr;
+          </button>
+        </div>
+        <p class="ins-nl-note">🔒 No spam. Unsubscribe anytime.</p>
+        <p id="nlSuccess" style="display:none;color:var(--green-light);font-size:13px;font-weight:600">
+          ✓ You&rsquo;re subscribed! Check your inbox.
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+{# ══ BOTTOM CTA — reuses home.css .cta-band ══ #}
+<div class="cta-band">
+  <div class="cta-band-inner">
+    <div class="cta-text">
+      <span class="cta-eyebrow">Work with us</span>
+      <h2 class="cta-title">Ready to put these<br>insights into action?</h2>
+      <p class="cta-sub">
+        Our team of enterprise technology specialists can help you design and
+        implement the systems behind every insight we publish.
+      </p>
+    </div>
+    <div class="cta-actions">
+      <a href="{% url 'contact' %}" class="cta-btn-w">Book a Consultation &rarr;</a>
+      <a href="{% url 'what_we_do' %}" class="cta-btn-o">View Our Services</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+'use strict';
+
+/* ── SCROLL FADE-IN ────────────────────────────── */
+if ('IntersectionObserver' in window) {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('in-view'), i * 60);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.ins-card').forEach(c => obs.observe(c));
+}
+
+/* ── LIKE TOGGLE ───────────────────────────────── */
+function toggleLike(btn, id) {
+  const span   = btn.querySelector('span');
+  const liked  = btn.classList.contains('liked');
+  const count  = parseInt(btn.dataset.count);
+  btn.classList.toggle('liked');
+  btn.innerHTML = liked
+    ? '&#x2661; <span>' + (count - 1)  + '</span>'
+    : '&#x2665; <span>' + (count + 1)  + '</span>';
+  btn.dataset.count = liked ? count - 1 : count + 1;
+}
+
+/* ── SHARE FUNCTIONS ───────────────────────────── */
+function shareInsight(title, url) {
+  const li = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url);
+  window.open(li, '_blank', 'width=600,height=500');
+}
+function shareTwitter(title, url) {
+  const tw = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(title) + '&url=' + encodeURIComponent(url);
+  window.open(tw, '_blank', 'width=600,height=400');
+}
+
+/* ── NEWSLETTER ────────────────────────────────── */
+function handleNewsletter(e) {
+  e.preventDefault();
+  const btn  = document.getElementById('nlBtn');
+  const succ = document.getElementById('nlSuccess');
+  if (!btn) return;
+  btn.textContent = 'Subscribing…';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.style.display = 'none';
+    if (succ) succ.style.display = 'block';
+    e.target.reset();
+  }, 1000);
+}
+</script>
+{% endblock %}

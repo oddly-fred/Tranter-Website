@@ -1,0 +1,190 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}Send Signal{% endblock %}
+
+{% block content %}
+<style>
+    .send-signal-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+    }
+
+    .form-hint {
+        font-size: 0.8125rem;
+        color: var(--text-light);
+        margin-top: 0.25rem;
+    }
+
+    .urgency-selector {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+    }
+
+    .urgency-option {
+        padding: 1rem;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+    }
+
+    .urgency-option:hover {
+        border-color: var(--primary);
+        background: rgba(4, 128, 66, 0.05);
+    }
+
+    .urgency-option.selected {
+        border-color: var(--primary);
+        background: rgba(4, 128, 66, 0.1);
+    }
+
+    .urgency-icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .urgency-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text);
+    }
+
+    @media (max-width: 640px) {
+        .urgency-selector {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<div class="send-signal-container">
+    <a href="{% url 'dashboard:signal_inbox' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-light); text-decoration: none; margin-bottom: 1rem;">
+        ← Back to Inbox
+    </a>
+
+    <div class="card">
+        <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">📡 Send Signal</h1>
+        <p style="color: var(--text-light); margin-bottom: 2rem;">Send a structured notification to a team member</p>
+
+        <form method="POST" action="{% url 'dashboard:signal_send' %}">
+            {% csrf_token %}
+
+            <!-- Recipient -->
+            <div class="form-group">
+                <label class="form-label">To *</label>
+                <select name="recipient" class="form-select" required>
+                    <option value="">Select recipient...</option>
+                    {% for u in users %}
+                    <option value="{{ u.id }}">{{ u.profile.full_name }} ({{ u.profile.get_role_display }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Signal Type -->
+            <div class="form-group">
+                <label class="form-label">Signal Type *</label>
+                <select name="signal_type" class="form-select" required>
+                    {% for value, label in signal_types %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Urgency -->
+            <div class="form-group">
+                <label class="form-label">Urgency Level *</label>
+                <div class="urgency-selector">
+                    <label class="urgency-option" onclick="selectUrgency(this, 'low')">
+                        <input type="radio" name="urgency" value="low" style="display:none;">
+                        <div class="urgency-icon">📌</div>
+                        <div class="urgency-name">Low</div>
+                    </label>
+                    <label class="urgency-option selected" onclick="selectUrgency(this, 'normal')">
+                        <input type="radio" name="urgency" value="normal" checked style="display:none;">
+                        <div class="urgency-icon">📡</div>
+                        <div class="urgency-name">Normal</div>
+                    </label>
+                    <label class="urgency-option" onclick="selectUrgency(this, 'high')">
+                        <input type="radio" name="urgency" value="high" style="display:none;">
+                        <div class="urgency-icon">⚡</div>
+                        <div class="urgency-name">High</div>
+                    </label>
+                    <label class="urgency-option" onclick="selectUrgency(this, 'urgent')">
+                        <input type="radio" name="urgency" value="urgent" style="display:none;">
+                        <div class="urgency-icon">🔥</div>
+                        <div class="urgency-name">Urgent</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Subject -->
+            <div class="form-group">
+                <label class="form-label">Subject *</label>
+                <input type="text" name="subject" class="form-input" placeholder="Brief subject line..." required maxlength="200">
+            </div>
+
+            <!-- Message -->
+            <div class="form-group">
+                <label class="form-label">Message *</label>
+                <textarea name="message" class="form-input" rows="5" placeholder="Write your message here..." required></textarea>
+            </div>
+
+            <!-- Related Task -->
+            <div class="form-group">
+                <label class="form-label">Related Task (Optional)</label>
+                <select name="related_task" class="form-select">
+                    <option value="">-- No task --</option>
+                    {% for task in tasks %}
+                    <option value="{{ task.id }}">{{ task.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Related Project -->
+            <div class="form-group">
+                <label class="form-label">Related Project (Optional)</label>
+                <select name="related_project" class="form-select">
+                    <option value="">-- No project --</option>
+                    {% for project in projects %}
+                    <option value="{{ project.id }}">{{ project.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                    📡 Send Signal
+                </button>
+                <a href="{% url 'dashboard:signal_inbox' %}" class="btn btn-secondary" style="flex: 1; justify-content: center;">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function selectUrgency(element, value) {
+    document.querySelectorAll('.urgency-option').forEach(opt => {
+        opt.classList.remove('selected');
+        opt.querySelector('input').checked = false;
+    });
+    
+    element.classList.add('selected');
+    element.querySelector('input').checked = true;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,218 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block page_title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<style>
+    .course-header {
+        background: linear-gradient(135deg, #048042 0%, #036835 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+    .course-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+    .course-header-meta {
+        display: flex;
+        gap: 2rem;
+        font-size: 0.9375rem;
+        opacity: 0.95;
+    }
+
+    .content-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 2rem;
+    }
+
+    .lesson-sidebar {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+        border: 1px solid var(--border);
+    }
+    .lesson-sidebar h3 {
+        font-size: 1.125rem;
+        margin-bottom: 1rem;
+        color: var(--text);
+    }
+
+    .lesson-item {
+        padding: 0.875rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .lesson-item:hover {
+        background: var(--bg);
+        border-color: var(--border);
+    }
+    .lesson-item.active {
+        background: rgba(4, 128, 66, 0.1);
+        border-color: var(--primary);
+    }
+    .lesson-item.completed {
+        opacity: 0.7;
+    }
+    .lesson-check {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid #d1d5db;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .lesson-item.completed .lesson-check {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+    .lesson-info {
+        flex: 1;
+    }
+    .lesson-title {
+        font-weight: 500;
+        font-size: 0.9375rem;
+        margin-bottom: 0.125rem;
+    }
+    .lesson-duration {
+        font-size: 0.75rem;
+        color: var(--text-light);
+    }
+
+    .lesson-content {
+        background: white;
+        border-radius: 12px;
+        padding: 2.5rem;
+        border: 1px solid var(--border);
+        min-height: 500px;
+    }
+    .lesson-content h2 {
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+        color: var(--text);
+    }
+    .lesson-content p {
+        line-height: 1.7;
+        color: var(--text);
+        margin-bottom: 1rem;
+    }
+
+    .lesson-actions {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .progress-overview {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+    }
+    .progress-overview h4 {
+        margin-bottom: 1rem;
+        color: var(--text);
+    }
+
+    @media (max-width: 1024px) {
+        .content-layout {
+            grid-template-columns: 1fr;
+        }
+        .lesson-sidebar {
+            position: static;
+        }
+    }
+</style>
+
+<!-- Course Header -->
+<div class="course-header">
+    <a href="{% url 'dashboard:courses' %}" style="color: white; text-decoration: none; opacity: 0.9; display: inline-block; margin-bottom: 1rem;">
+        ← Back to Courses
+    </a>
+    <h1>{{ course.title }}</h1>
+    <div class="course-header-meta">
+        <span>📝 {{ lessons|length }} lessons</span>
+        <span>⏱️ {{ course.estimated_hours }}h total</span>
+        <span>📊 {{ progress }}% complete</span>
+    </div>
+</div>
+
+<!-- Progress Overview -->
+<div class="progress-overview">
+    <h4>Your Progress</h4>
+    <div class="progress-bar" style="height: 10px;">
+        <div class="progress-fill" style="width: {{ progress }}%"></div>
+    </div>
+</div>
+
+<!-- Content Layout -->
+<div class="content-layout">
+    <!-- Lesson Sidebar -->
+    <div class="lesson-sidebar">
+        <h3>Course Content</h3>
+        {% for item in lessons %}
+        <div class="lesson-item {% if item.progress.is_completed %}completed{% endif %}" 
+             onclick="window.location.href='{% url 'dashboard:lesson_detail' course.pk item.lesson.pk %}'">
+            <div class="lesson-check">
+                {% if item.progress.is_completed %}✓{% endif %}
+            </div>
+            <div class="lesson-info">
+                <div class="lesson-title">{{ forloop.counter }}. {{ item.lesson.title }}</div>
+                <div class="lesson-duration">{{ item.lesson.duration_minutes }} min</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Main Content -->
+    <div>
+        <div class="lesson-content">
+            <h2>About This Course</h2>
+            <p>{{ course.description }}</p>
+            
+            <div style="margin-top: 2rem;">
+                <h3 style="margin-bottom: 1rem;">What you'll learn:</h3>
+                <ul style="list-style: none; padding: 0;">
+                    {% for item in lessons %}
+                    <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+                        <span style="color: var(--primary);">✓</span>
+                        <span>{{ item.lesson.title }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="lesson-actions">
+                <div></div>
+                <a href="{% url 'dashboard:lesson_detail' course.pk lessons.0.lesson.pk %}" class="btn btn-primary">
+                    {% if progress == 0 %}
+                        Start Course →
+                    {% else %}
+                        Continue Learning →
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

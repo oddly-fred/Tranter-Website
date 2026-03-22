@@ -1,0 +1,98 @@
+{% comment %}
+Region Switcher Component
+Include this partial to add a region switch button
+
+Usage:
+    {% include "geo_content/partials/region_switcher.html" %}
+
+Or use the template tag:
+    {% load geo_extras %}
+    {% region_switcher button_class="my-btn" %}
+{% endcomment %}
+
+<form action="{% url 'geo_content:set_region' %}" method="post" class="region-switcher-form">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <input type="hidden" name="region" value="{{ alternate_region }}">
+    <button type="submit" class="region-switcher-btn {{ button_class }}" title="Switch to {{ alternate_region_name }}">
+        <span class="region-switcher-flag">{{ alternate_region_flag }}</span>
+        <span class="region-switcher-text">
+            <span class="region-switcher-label">Switch to</span>
+            <span class="region-switcher-target">{{ alternate_region_name }}</span>
+        </span>
+    </button>
+</form>
+
+<style>
+.region-switcher-form {
+    display: inline-block;
+    margin: 0;
+}
+
+.region-switcher-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #11874b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.region-switcher-btn:hover {
+    background: #1a9e5a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(17, 135, 75, 0.3);
+}
+
+.region-switcher-flag {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.region-switcher-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+
+.region-switcher-label {
+    font-size: 11px;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.region-switcher-target {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Compact variant */
+.region-switcher-btn.compact {
+    padding: 6px 12px;
+}
+
+.region-switcher-btn.compact .region-switcher-text {
+    display: none;
+}
+
+/* Outline variant */
+.region-switcher-btn.outline {
+    background: transparent;
+    color: #11874b;
+    border: 2px solid #11874b;
+}
+
+.region-switcher-btn.outline:hover {
+    background: #11874b;
+    color: white;
+}
+</style>

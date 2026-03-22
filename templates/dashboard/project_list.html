@@ -1,0 +1,221 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}Projects{% endblock %}
+
+{% block content %}
+<style>
+    .projects-hero {
+        background: linear-gradient(135deg, #048042 0%, #036835 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .project-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .project-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    }
+
+    .project-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+    }
+
+    .project-color-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .project-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+    }
+
+    .project-description {
+        color: var(--text-light);
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    .project-body {
+        padding: 1.5rem;
+    }
+
+    .project-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-box {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-light);
+    }
+
+    .progress-bar {
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: var(--primary);
+        transition: width 0.3s;
+    }
+
+    .create-project-card {
+        background: white;
+        border: 2px dashed var(--border);
+        border-radius: 12px;
+        padding: 3rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .create-project-card:hover {
+        border-color: var(--primary);
+        background: rgba(4, 128, 66, 0.02);
+    }
+
+    .create-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+    }
+</style>
+
+<!-- Hero -->
+<div class="projects-hero">
+    <div>
+        <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">📁 Projects</h1>
+        <p style="opacity: 0.95;">Organize your work into projects</p>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('project-modal').classList.add('active')" style="background: white; color: var(--primary);">
+        + New Project
+    </button>
+</div>
+
+<!-- Projects Grid -->
+<div class="projects-grid">
+    <!-- Create New Project Card -->
+    <div class="create-project-card" onclick="document.getElementById('project-modal').classList.add('active')">
+        <div class="create-icon">➕</div>
+        <h3 style="font-weight: 600; margin-bottom: 0.5rem;">Create New Project</h3>
+        <p style="color: var(--text-light); font-size: 0.875rem;">Start organizing your tasks</p>
+    </div>
+
+    <!-- Existing Projects -->
+    {% for item in projects %}
+    <div class="project-card" onclick="window.location.href='{% url 'dashboard:project_detail' item.project.pk %}'">
+        <div class="project-header">
+            <div class="project-color-bar" style="background: {{ item.project.color }}"></div>
+            <div class="project-name">{{ item.project.name }}</div>
+            <div class="project-description">{{ item.project.description|truncatewords:15 }}</div>
+        </div>
+        <div class="project-body">
+            <div class="project-stats">
+                <div class="stat-box">
+                    <div class="stat-value">{{ item.total_tasks }}</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ item.completed_tasks }}</div>
+                    <div class="stat-label">Done</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ item.progress }}%</div>
+                    <div class="stat-label">Progress</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ item.progress }}%; background: {{ item.project.color }};"></div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    {% endfor %}
+</div>
+
+<!-- Create Project Modal -->
+<div class="modal" id="project-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Create New Project</h2>
+            <button class="modal-close" onclick="document.getElementById('project-modal').classList.remove('active')">×</button>
+        </div>
+
+        <form method="POST" action="{% url 'dashboard:project_create' %}" 
+              hx-post="{% url 'dashboard:project_create' %}" 
+              hx-swap="none">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 1rem;">
+                <label>Project Name *</label>
+                <input type="text" name="name" class="form-input" placeholder="e.g., Website Redesign" required>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label>Description</label>
+                <textarea name="description" class="form-input" rows="3" placeholder="What is this project about?"></textarea>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label>Color</label>
+                <input type="color" name="color" value="#048042" class="form-input" style="height: 50px;">
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Create Project</button>
+                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="document.getElementById('project-modal').classList.remove('active')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.body.addEventListener('projectCreated', function() {
+    document.getElementById('project-modal').classList.remove('active');
+    location.reload();
+});
+</script>
+{% endblock %}

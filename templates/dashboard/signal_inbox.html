@@ -1,0 +1,284 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}Signal Inbox{% endblock %}
+
+{% block content %}
+<style>
+    .signals-hero {
+        background: linear-gradient(135deg, #048042 0%, #036835 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .signal-filters {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        overflow-x: auto;
+        flex-wrap: wrap;
+    }
+
+    .filter-tab {
+        padding: 0.625rem 1.25rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: var(--text);
+        font-size: 0.875rem;
+    }
+
+    .filter-tab:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .filter-tab.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .filter-count {
+        background: rgba(0,0,0,0.1);
+        padding: 0.125rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+    }
+
+    .signal-list {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    .signal-item {
+        padding: 1.25rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 1rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .signal-item:hover {
+        background: var(--bg);
+    }
+
+    .signal-item:last-child {
+        border-bottom: none;
+    }
+
+    .signal-item.unread {
+        background: rgba(4, 128, 66, 0.03);
+        border-left: 4px solid var(--primary);
+    }
+
+    .signal-icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .signal-icon-box.urgent { background: rgba(239, 68, 68, 0.1); }
+    .signal-icon-box.high { background: rgba(245, 158, 11, 0.1); }
+    .signal-icon-box.normal { background: rgba(59, 130, 246, 0.1); }
+    .signal-icon-box.low { background: rgba(107, 114, 128, 0.1); }
+
+    .signal-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .signal-sender {
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 0.25rem;
+    }
+
+    .signal-subject {
+        font-size: 0.9375rem;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+    }
+
+    .signal-preview {
+        color: var(--text-light);
+        font-size: 0.875rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .signal-meta {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+        font-size: 0.8125rem;
+        color: var(--text-light);
+        flex-wrap: wrap;
+    }
+
+    .signal-time {
+        font-size: 0.8125rem;
+        color: var(--text-light);
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-box {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid var(--border);
+    }
+
+    .stat-box-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .stat-box-label {
+        font-size: 0.8125rem;
+        color: var(--text-light);
+        margin-top: 0.25rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-light);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
+        .stats-bar {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<!-- Hero -->
+<div class="signals-hero">
+    <div>
+        <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">📡 Signal Inbox</h1>
+        <p style="opacity: 0.95;">Intelligent notifications from your team</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+        <a href="{% url 'dashboard:signal_send' %}" class="btn" style="background: white; color: var(--primary);">
+            + Send Signal
+        </a>
+        <a href="{% url 'dashboard:signal_sent' %}" class="btn" style="background: rgba(255,255,255,0.2); color: white;">
+            📤 Sent
+        </a>
+    </div>
+</div>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+    <div class="stat-box">
+        <div class="stat-box-value">{{ stats.total }}</div>
+        <div class="stat-box-label">Total Signals</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-box-value">{{ stats.unread }}</div>
+        <div class="stat-box-label">📬 Unread</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-box-value" style="color: #ef4444;">{{ stats.urgent }}</div>
+        <div class="stat-box-label">🔥 Urgent</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-box-value">{{ stats.pending }}</div>
+        <div class="stat-box-label">⏳ Pending</div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="signal-filters">
+    <a href="?filter=all" class="filter-tab {% if filter_type == 'all' %}active{% endif %}">
+        All <span class="filter-count">{{ stats.total }}</span>
+    </a>
+    <a href="?filter=unread" class="filter-tab {% if filter_type == 'unread' %}active{% endif %}">
+        📬 Unread <span class="filter-count">{{ stats.unread }}</span>
+    </a>
+    <a href="?filter=urgent" class="filter-tab {% if filter_type == 'urgent' %}active{% endif %}">
+        🔥 Urgent <span class="filter-count">{{ stats.urgent }}</span>
+    </a>
+    <a href="?filter=pending" class="filter-tab {% if filter_type == 'pending' %}active{% endif %}">
+        ⏳ Pending <span class="filter-count">{{ stats.pending }}</span>
+    </a>
+</div>
+
+<!-- Signal List -->
+<div class="signal-list">
+    {% for signal in signals %}
+    <div class="signal-item {% if not signal.is_read %}unread{% endif %}" 
+         onclick="window.location.href='{% url 'dashboard:signal_detail' signal.pk %}'">
+        
+        <div class="signal-icon-box {{ signal.urgency }}">
+            {{ signal.icon }}
+        </div>
+
+        <div class="signal-info">
+            <div class="signal-sender">{{ signal.sender.profile.full_name }}</div>
+            <div class="signal-subject">{{ signal.subject }}</div>
+            <div class="signal-preview">{{ signal.message|truncatewords:15 }}</div>
+            <div class="signal-meta">
+                <span style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; background: var(--bg); border-radius: 4px;">
+                    {{ signal.icon }} {{ signal.get_signal_type_display }}
+                </span>
+                {% if signal.related_task %}
+                <span>📋 {{ signal.related_task.title|truncatewords:5 }}</span>
+                {% endif %}
+                {% if signal.is_responded %}
+                <span style="color: #10b981;">✅ Responded</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="signal-time">{{ signal.created_at|timesince }} ago</div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📡</div>
+        <h3>No signals yet</h3>
+        <p>Signals from your team will appear here</p>
+        <a href="{% url 'dashboard:signal_send' %}" class="btn btn-primary" style="margin-top: 1rem;">
+            Send Your First Signal
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

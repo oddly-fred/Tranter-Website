@@ -1,0 +1,16 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}Signal Templates{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 1rem;">📝 Signal Templates</h1>
+    <p style="color: var(--text-light); margin-bottom: 2rem;">Quick templates for common signals (Coming soon)</p>
+    
+    <div style="background: var(--bg); padding: 2rem; border-radius: 8px; text-align: center;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🚧</div>
+        <p>Template management interface will be added in the next update</p>
+        <a href="{% url 'dashboard:signal_send' %}" class="btn btn-primary" style="margin-top: 1rem;">Send Signal Manually</a>
+    </div>
+</div>
+{% endblock %}

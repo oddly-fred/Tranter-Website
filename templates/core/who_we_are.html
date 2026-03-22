@@ -1,8 +1,384 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Who We Are{% endblock %}
+{% block meta_description %}Learn about Tranter — a global technology services firm designing resilient IT systems across Africa and beyond.{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── PAGE HERO ── */
+  .wwa-hero {
+    padding: calc(var(--nav-h) + 80px) 52px 80px;
+    background: var(--offwhite);
+    border-bottom: 1px solid var(--rule);
+    position: relative; overflow: hidden;
+  }
+  .wwa-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(17,135,75,.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 50% 80% at 10% 50%, black, transparent);
+    pointer-events: none;
+  }
+  .wwa-hero-inner {
+    max-width: 760px; position: relative; z-index: 1;
+  }
+  .wwa-eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--f-mono); font-size: 11px;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--green); margin-bottom: 20px;
+  }
+  .wwa-eyebrow::before {
+    content: ''; display: block;
+    width: 20px; height: 2px;
+    background: var(--green); border-radius: 1px;
+  }
+  .wwa-hero h1 {
+    font-family: var(--f-display);
+    font-size: clamp(40px, 5.5vw, 68px);
+    font-weight: 800; line-height: 1.05;
+    letter-spacing: -2px; color: var(--ink);
+    margin-bottom: 24px;
+  }
+  .wwa-hero h1 span { color: var(--green); }
+  .wwa-hero p {
+    font-size: 17px; font-weight: 300;
+    color: var(--body-text); line-height: 1.82;
+    max-width: 640px;
+  }
+
+  /* ── SECTION BASE ── */
+  .wwa-section {
+    padding: 96px 52px;
+  }
+  .wwa-section.alt { background: var(--offwhite); }
+
+  /* ── STORY SECTION ── */
+  .story-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: center;
+    max-width: 1280px; margin: 0 auto;
+  }
+  .story-label {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--f-mono); font-size: 11px;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--red); margin-bottom: 20px;
+  }
+  .story-label::before {
+    content: ''; display: block;
+    width: 20px; height: 2px;
+    background: var(--red); border-radius: 1px;
+  }
+  .story-grid h2 {
+    font-family: var(--f-display);
+    font-size: clamp(28px, 3.5vw, 44px);
+    font-weight: 800; line-height: 1.1;
+    letter-spacing: -1.5px; color: var(--ink);
+    margin-bottom: 24px;
+  }
+  .story-grid p {
+    font-size: 15px; color: var(--body-text);
+    line-height: 1.85; font-weight: 300;
+    margin-bottom: 16px;
+  }
+  .story-quote {
+    border-left: 3px solid var(--green);
+    background: var(--green-pale);
+    border-radius: 0 var(--r-sm) var(--r-sm) 0;
+    padding: 16px 20px; margin: 24px 0;
+    font-size: 15px; color: var(--ink); line-height: 1.75;
+    font-style: normal;
+  }
+  .story-img-stack {
+    position: relative; height: 480px;
+  }
+  .story-img-main {
+    position: absolute; top: 0; left: 0; right: 60px; bottom: 80px;
+    border-radius: var(--r-lg); overflow: hidden;
+    box-shadow: var(--sh-lg);
+  }
+  .story-img-main img { width: 100%; height: 100%; object-fit: cover; }
+  .story-img-accent {
+    position: absolute; right: 0; bottom: 0; left: 60px; top: 220px;
+    border-radius: var(--r-lg); overflow: hidden;
+    box-shadow: var(--sh-lg); z-index: 2;
+    border: 4px solid var(--white);
+  }
+  .story-img-accent img { width: 100%; height: 100%; object-fit: cover; }
+  .story-tag {
+    position: absolute; top: 32px; right: -8px; z-index: 3;
+    background: var(--red); color: #fff;
+    border-radius: var(--r-md); padding: 16px 20px;
+    box-shadow: var(--sh-red); text-align: center;
+  }
+  .story-tag-num {
+    display: block; font-family: var(--f-display);
+    font-size: 32px; font-weight: 800; line-height: 1;
+  }
+  .story-tag-lbl {
+    display: block; font-size: 11px;
+    font-weight: 400; opacity: .85; line-height: 1.3; margin-top: 4px;
+  }
+
+  /* ── VALUES ── */
+  .values-inner { max-width: 1280px; margin: 0 auto; }
+  .values-header { margin-bottom: 56px; }
+  .values-header h2 {
+    font-family: var(--f-display);
+    font-size: clamp(28px, 3.5vw, 44px);
+    font-weight: 800; letter-spacing: -1.5px; color: var(--ink);
+    margin-top: 16px;
+  }
+  .values-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+  }
+  .value-card {
+    background: var(--white); border: 1px solid var(--rule);
+    border-radius: var(--r-lg); padding: 36px 28px;
+    position: relative; overflow: hidden; transition: all .3s;
+  }
+  .value-card::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 0; right: 0; height: 3px;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform .3s;
+  }
+  .value-card.g::after { background: var(--green); }
+  .value-card.r::after { background: var(--red); }
+  .value-card:hover { transform: translateY(-5px); box-shadow: var(--sh-md); }
+  .value-card.g:hover { border-color: var(--green-border); background: var(--green-xpale); }
+  .value-card.r:hover { border-color: var(--red-border);   background: var(--red-xpale); }
+  .value-card:hover::after { transform: scaleX(1); }
+  .value-icon { font-size: 32px; margin-bottom: 16px; }
+  .value-title {
+    font-family: var(--f-display); font-size: 18px;
+    font-weight: 700; color: var(--ink); margin-bottom: 10px;
+  }
+  .value-body {
+    font-size: 14px; color: var(--body-text);
+    line-height: 1.75; font-weight: 300;
+  }
+
+  /* ── STATS ROW ── */
+  .stats-inner {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    max-width: 1280px; margin: 0 auto;
+    border: 1px solid var(--rule); border-radius: var(--r-lg); overflow: hidden;
+    gap: 1px; background: var(--rule);
+  }
+  .wwa-stat {
+    background: var(--white); padding: 48px 36px;
+    text-align: center; transition: background .3s;
+    position: relative; overflow: hidden;
+  }
+  .wwa-stat::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 0; right: 0; height: 3px;
+    transform: scaleX(0); transform-origin: left; transition: transform .4s;
+  }
+  .wwa-stat.g::after { background: linear-gradient(90deg, var(--green), var(--green-light)); }
+  .wwa-stat.r::after { background: linear-gradient(90deg, var(--red), var(--red-light)); }
+  .wwa-stat.g:hover { background: var(--green-xpale); }
+  .wwa-stat.r:hover { background: var(--red-xpale); }
+  .wwa-stat:hover::after { transform: scaleX(1); }
+  .wwa-stat-num {
+    font-family: var(--f-display); font-size: 52px;
+    font-weight: 800; letter-spacing: -2px; line-height: 1;
+    color: var(--ink); margin-bottom: 8px;
+  }
+  .wwa-stat.g .wwa-stat-num em { color: var(--green); }
+  .wwa-stat.r .wwa-stat-num em { color: var(--red); }
+  .wwa-stat-num em { font-style: normal; }
+  .wwa-stat-lbl { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* ── CTA ── */
+  .wwa-cta {
+    background: linear-gradient(130deg, var(--green) 0%, #0d6638 40%, #6e0d12 60%, var(--red) 100%);
+    padding: 80px 52px; text-align: center; position: relative; overflow: hidden;
+  }
+  .wwa-cta::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .wwa-cta-inner { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
+  .wwa-cta h2 {
+    font-family: var(--f-display);
+    font-size: clamp(28px, 3.5vw, 44px);
+    font-weight: 800; letter-spacing: -1.2px;
+    color: #fff; margin-bottom: 16px;
+  }
+  .wwa-cta p {
+    font-size: 16px; color: rgba(255,255,255,.75);
+    font-weight: 300; line-height: 1.8; margin-bottom: 36px;
+  }
+  .wwa-cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn-cta-white {
+    font-family: var(--f-body); font-size: 15px; font-weight: 600;
+    color: var(--red); background: #fff;
+    padding: 14px 30px; border-radius: var(--r-md); border: none;
+    transition: all .25s; box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  }
+  .btn-cta-white:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.22); }
+  .btn-cta-outline {
+    font-family: var(--f-body); font-size: 15px; font-weight: 500;
+    color: rgba(255,255,255,.9); background: transparent;
+    border: 1.5px solid rgba(255,255,255,.3);
+    padding: 14px 30px; border-radius: var(--r-md); transition: all .25s;
+  }
+  .btn-cta-outline:hover { border-color: rgba(255,255,255,.65); background: rgba(255,255,255,.08); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    .wwa-hero { padding: calc(var(--nav-h) + 48px) 24px 56px; }
+    .wwa-section { padding: 72px 24px; }
+    .story-grid { grid-template-columns: 1fr; gap: 48px; }
+    .story-img-stack { height: 320px; }
+    .values-grid { grid-template-columns: repeat(2,1fr); }
+    .stats-inner { grid-template-columns: repeat(2,1fr); }
+    .wwa-cta { padding: 64px 24px; }
+  }
+  @media (max-width: 640px) {
+    .values-grid { grid-template-columns: 1fr; }
+    .stats-inner { grid-template-columns: 1fr 1fr; }
+    .story-img-stack { display: none; }
+  }
+</style>
+{% endblock %}
+
 
 {% block content %}
-<div class="container py-5">
-    <h1>Who We Are</h1>
-    <p>Tranter is a leading enterprise technology solutions provider.</p>
+
+{# ── HERO ── #}
+<div class="wwa-hero">
+  <div class="wwa-hero-inner">
+    <div class="wwa-eyebrow">Who We Are</div>
+    <h1>Built to Power<br><span>Enterprise Africa.</span></h1>
+    <p>
+      Tranter is a global technology services firm partnering with organisations
+      to design, build and operate digital systems that drive growth, resilience
+      and operational excellence. We don't supply tools — we architect systems.
+    </p>
+  </div>
 </div>
+
+
+{# ── STORY ── #}
+<section class="wwa-section">
+  <div class="story-grid">
+    <div>
+      <div class="story-label">Our Story</div>
+      <h2>Strategic Partner<br>for Digital Growth</h2>
+      <p>
+        We partner with executive teams to solve complex operational and digital
+        challenges through scalable technology, automation and managed services.
+      </p>
+      <p>
+        We operate a distributed global delivery model supporting international
+        clients across time zones, industries and operating environments — from
+        Lagos to London, Abuja to Amsterdam.
+      </p>
+      <blockquote class="story-quote">
+        Our role is not to supply tools. Our role is to design systems that make
+        organisations faster, leaner, more secure and more competitive.
+      </blockquote>
+      <p>
+        With decades of combined experience across financial services, energy,
+        manufacturing and public sector — we bring operational depth that
+        generic technology vendors simply cannot match.
+      </p>
+    </div>
+
+    <div class="story-img-stack">
+      <div class="story-img-main">
+        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80"
+             alt="Tranter team">
+      </div>
+      <div class="story-img-accent">
+        <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=500&q=80"
+             alt="Technology operations">
+      </div>
+      <div class="story-tag">
+        <span class="story-tag-num">15+</span>
+        <span class="story-tag-lbl">Years of<br>Operational Depth</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{# ── STATS ── #}
+<section class="wwa-section alt">
+  <div class="stats-inner">
+    <div class="wwa-stat g">
+      <div class="wwa-stat-num">99<em>%</em></div>
+      <div class="wwa-stat-lbl">SLA Completion Across All Support Sites</div>
+    </div>
+    <div class="wwa-stat r">
+      <div class="wwa-stat-num">200<em>+</em></div>
+      <div class="wwa-stat-lbl">Expert ICT &amp; Smart Solutions Engineers</div>
+    </div>
+    <div class="wwa-stat g">
+      <div class="wwa-stat-num">50<em>+</em></div>
+      <div class="wwa-stat-lbl">Global OEM Partners Across the Globe</div>
+    </div>
+    <div class="wwa-stat r">
+      <div class="wwa-stat-num">30<em>+</em></div>
+      <div class="wwa-stat-lbl">Channel Partners Around the World</div>
+    </div>
+  </div>
+</section>
+
+
+{# ── VALUES ── #}
+<section class="wwa-section">
+  <div class="values-inner">
+    <div class="values-header">
+      <div class="wwa-eyebrow">What Drives Us</div>
+      <h2>Our Core Values</h2>
+    </div>
+    <div class="values-grid">
+      <div class="value-card g">
+        <div class="value-icon">🎯</div>
+        <div class="value-title">Results Over Activity</div>
+        <div class="value-body">We measure ourselves by outcomes — uptime, efficiency gains, and business growth — not just deliverables.</div>
+      </div>
+      <div class="value-card r">
+        <div class="value-icon">🤝</div>
+        <div class="value-title">Partnership Mindset</div>
+        <div class="value-body">We operate as long-term partners, not transactional vendors. Your growth is our success metric.</div>
+      </div>
+      <div class="value-card g">
+        <div class="value-icon">🔒</div>
+        <div class="value-title">Security by Design</div>
+        <div class="value-body">Security isn't an afterthought — it's built into every system, every process, every engagement from day one.</div>
+      </div>
+      <div class="value-card r">
+        <div class="value-icon">🌍</div>
+        <div class="value-title">Global Standards</div>
+        <div class="value-body">ISO certified operations ensure every client receives enterprise-grade quality regardless of geography.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{# ── CTA ── #}
+<div class="wwa-cta">
+  <div class="wwa-cta-inner">
+    <h2>Ready to work with us?</h2>
+    <p>
+      Let's start a conversation about your technology challenges
+      and how Tranter can design the right systems to solve them.
+    </p>
+    <div class="wwa-cta-btns">
+      <a href="{% url 'contact' %}" class="btn-cta-white">Get in Touch →</a>
+      <a href="{% url 'what_we_do' %}" class="btn-cta-outline">View Our Services</a>
+    </div>
+  </div>
+</div>
+
 {% endblock %}

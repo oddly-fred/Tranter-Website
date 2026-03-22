@@ -1,0 +1,100 @@
+{% extends "dashboard/base.html" %}
+{% block page_title %}Tasks{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+    <div style="display: flex; gap: 0.5rem;">
+        <a href="?status=" class="btn btn-secondary btn-sm {% if not request.GET.status %}btn-primary{% endif %}">All</a>
+        <a href="?status=pending" class="btn btn-secondary btn-sm">Pending</a>
+        <a href="?status=in_progress" class="btn btn-secondary btn-sm">In Progress</a>
+        <a href="?status=done" class="btn btn-secondary btn-sm">Done</a>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('task-modal').classList.add('active')">+ New Task</button>
+</div>
+
+<div class="card">
+    <div id="task-items">
+    {% for task in tasks %}
+    <div class="task-card" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <div class="task-title">
+                <a href="{% url 'dashboard:task_detail' task.pk %}" style="text-decoration: none; color: inherit;">{{ task.title }}</a>
+                {% if task.ai_generated %}<span style="font-size: 0.75rem;">🤖</span>{% endif %}
+            </div>
+            <div class="task-meta">
+                <span class="badge badge-{{ task.priority }}">{{ task.get_priority_display }}</span>
+                {% if task.due_date %}
+                <span>Due: {{ task.due_date|date:"M d" }}</span>
+                {% endif %}
+                {% if task.assigned_to %}
+                <span>→ {{ task.assigned_to.full_name }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <select class="form-select" style="width: auto; margin: 0; padding: 0.25rem 0.5rem;"
+                    hx-post="{% url 'dashboard:task_status' task.pk %}"
+                    hx-trigger="change"
+                    hx-swap="outerHTML"
+                    hx-target="closest .task-card"
+                    name="status">
+                {% for value, label in task.STATUS_CHOICES %}
+                <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-secondary btn-sm" 
+                    hx-post="{% url 'dashboard:task_delete' task.pk %}"
+                    hx-confirm="Delete this task?"
+                    hx-swap="outerHTML swap:0.5s"
+                    hx-target="closest .task-card">🗑️</button>
+        </div>
+    </div>
+    {% empty %}
+    <p style="text-align: center; color: var(--text-light); padding: 2rem;">No tasks found. Create one!</p>
+    {% endfor %}
+    </div>
+</div>
+
+<!-- Robust Task Modal -->
+<div class="modal" id="task-modal">
+    <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 700;">➕ Create New Task</h2>
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('task-modal').classList.remove('active')">✕</button>
+        </div>
+
+        <!-- HTMX target for form rendering -->
+        <div id="modal-form-container">
+            <form method="POST" action="{% url 'dashboard:task_create' %}" 
+                  hx-post="{% url 'dashboard:task_create' %}" 
+                  hx-target="#modal-form-container" 
+                  hx-swap="innerHTML">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 500; margin-bottom: 0.25rem; font-size: 0.875rem;">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: #ef4444; font-size: 0.75rem;">{{ field.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">Create Task</button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1; justify-content: center;" onclick="document.getElementById('task-modal').classList.remove('active')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// HTMX event listener: reload page when task is successfully created (204 response)
+document.body.addEventListener('taskCreated', function() {
+    document.getElementById('task-modal').classList.remove('active');
+    location.reload(); // Refresh screen to show new task
+});
+</script>
+{% endblock %}

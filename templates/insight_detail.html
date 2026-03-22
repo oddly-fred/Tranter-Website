@@ -1,0 +1,594 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ insight.title }}{% endblock %}
+{% block meta_description %}{{ insight.excerpt }}{% endblock %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ insight.title }}",
+  "description": "{{ insight.excerpt }}",
+  "author": { "@type": "Person", "name": "{{ insight.author_name }}" },
+  "publisher": { "@type": "Organization", "name": "Tranter IT Infrastructure Services" },
+  "datePublished": "{{ insight.published_at }}"
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+
+/* ── HERO ──────────────────────────────────────── */
+.ind-hero {
+  position: relative; background: var(--ink);
+  padding: calc(var(--nav-h) + 60px) 52px 72px;
+  overflow: hidden;
+}
+.ind-hero::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(17,135,75,.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 55% 80% at 15% 50%, black, transparent);
+}
+.ind-glow {
+  position: absolute; top: -100px; left: -100px;
+  width: 450px; height: 450px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(17,135,75,.14), transparent 65%);
+}
+.ind-hero-inner {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: 1fr 320px;
+  gap: 56px; max-width: 1280px; margin: 0 auto; align-items: start;
+}
+
+/* Breadcrumb */
+.ind-breadcrumb {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: rgba(255,255,255,.3);
+  margin-bottom: 32px; grid-column: span 2;
+}
+.ind-breadcrumb a { color: rgba(255,255,255,.35); transition: color .2s; }
+.ind-breadcrumb a:hover { color: var(--green-light); }
+.ind-breadcrumb span:last-child { color: rgba(255,255,255,.65); }
+
+.ind-badges { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.ind-badge {
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 4px 10px; border-radius: 4px;
+}
+.ind-badge.cat-g { background: var(--green-pale); color: var(--green); }
+.ind-badge.cat-r { background: var(--red-pale); color: var(--red); }
+.ind-badge.premium { background: rgba(20,26,20,.8); color: #f59e0b; border: 1px solid rgba(245,158,11,.3); }
+.ind-badge.sponsored { background: rgba(17,135,75,.15); color: var(--green-light); }
+
+.ind-title {
+  font-family: var(--f-display);
+  font-size: clamp(28px, 4vw, 52px);
+  font-weight: 800; letter-spacing: -1.8px; color: #fff;
+  line-height: 1.06; margin-bottom: 16px;
+}
+.ind-excerpt {
+  font-size: 16px; font-weight: 300;
+  color: rgba(255,255,255,.55); line-height: 1.85; margin-bottom: 24px;
+}
+.ind-meta-row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  font-size: 12.5px; color: rgba(255,255,255,.4); margin-bottom: 20px;
+}
+.ind-meta-row span { display: flex; align-items: center; gap: 6px; }
+.ind-tags { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 28px; }
+.ind-tag {
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 1px;
+  padding: 4px 10px; border-radius: 4px;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.5);
+}
+.ind-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.ind-btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--f-body); font-size: 14px; font-weight: 600;
+  color: #fff; background: var(--green);
+  padding: 12px 22px; border-radius: var(--r-sm); transition: all .25s;
+  box-shadow: 0 3px 14px rgba(17,135,75,.4);
+}
+.ind-btn-primary:hover { background: var(--green-mid); transform: translateY(-1px); }
+.ind-btn-ghost {
+  display: inline-flex; font-family: var(--f-body); font-size: 14px;
+  font-weight: 500; color: rgba(255,255,255,.65);
+  border: 1.5px solid rgba(255,255,255,.2); background: transparent;
+  padding: 12px 20px; border-radius: var(--r-sm); transition: all .25s;
+}
+.ind-btn-ghost:hover { border-color: rgba(255,255,255,.5); color: #fff; }
+
+/* Hero cover image */
+.ind-hero-cover {
+  border-radius: var(--r-lg); overflow: hidden;
+  aspect-ratio: 4/3; box-shadow: var(--sh-xl);
+}
+.ind-hero-cover img { width: 100%; height: 100%; object-fit: cover; }
+.ind-hero-cover-placeholder {
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, var(--green-pale), var(--offwhite));
+  display: flex; align-items: center; justify-content: center; font-size: 64px;
+}
+
+
+/* ── READING PROGRESS BAR ───────────────────────── */
+.ind-progress-bar {
+  position: fixed; top: var(--nav-h); left: 0; right: 0; z-index: 90;
+  height: 3px; background: var(--rule); transform-origin: left;
+}
+.ind-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--green-light));
+  transform: scaleX(0); transform-origin: left; transition: transform .1s;
+}
+
+
+/* ── BODY LAYOUT ────────────────────────────────── */
+.ind-body { max-width: 1280px; margin: 0 auto; padding: 72px 52px; }
+.ind-body-grid { display: grid; grid-template-columns: 1fr 300px; gap: 56px; }
+
+/* Article text */
+.ind-article {
+  font-family: var(--f-body); font-size: 16px; font-weight: 300;
+  color: var(--body-text); line-height: 1.95;
+}
+.ind-article p { margin-bottom: 20px; }
+.ind-article h2 {
+  font-family: var(--f-display); font-size: 26px;
+  font-weight: 800; color: var(--ink); letter-spacing: -.7px;
+  margin: 40px 0 16px;
+}
+.ind-article h3 {
+  font-family: var(--f-display); font-size: 20px;
+  font-weight: 700; color: var(--ink); margin: 28px 0 12px;
+}
+.ind-article blockquote {
+  border-left: 3px solid var(--green);
+  background: var(--green-pale);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  padding: 16px 20px; margin: 24px 0; font-style: normal;
+}
+
+/* Video embed */
+.ind-video-wrap {
+  aspect-ratio: 16/9; border-radius: var(--r-lg);
+  overflow: hidden; box-shadow: var(--sh-lg); margin: 32px 0;
+}
+.ind-video-wrap iframe { width: 100%; height: 100%; border: none; }
+
+/* Author card */
+.ind-author-card {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--offwhite); border: 1px solid var(--rule);
+  border-radius: var(--r-lg); padding: 20px; margin-top: 40px;
+}
+.ind-author-avatar {
+  width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--green-pale), var(--green));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-display); font-size: 22px; font-weight: 800; color: #fff;
+}
+.ind-author-name { font-family: var(--f-display); font-size: 15px; font-weight: 700; color: var(--ink); }
+.ind-author-role { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+/* Engagement bar */
+.ind-engage-bar {
+  display: flex; align-items: center; gap: 14px;
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  padding: 16px 0; margin: 32px 0; flex-wrap: wrap;
+}
+.ind-engage-btn {
+  display: flex; align-items: center; gap: 7px;
+  font-family: var(--f-body); font-size: 13px; font-weight: 500;
+  color: var(--muted); background: var(--offwhite);
+  border: 1.5px solid var(--rule);
+  padding: 8px 16px; border-radius: var(--r-sm); cursor: pointer;
+  transition: all .2s;
+}
+.ind-engage-btn:hover { border-color: var(--green-border); color: var(--green); background: var(--green-pale); }
+.ind-engage-btn.liked { color: var(--red); border-color: var(--red-border); background: var(--red-pale); }
+
+/* Sticky sidebar */
+.ind-sidebar { position: sticky; top: calc(var(--nav-h) + 24px); }
+.ind-sidebar-card {
+  background: var(--offwhite); border: 1px solid var(--rule);
+  border-radius: var(--r-lg); padding: 20px; margin-bottom: 14px;
+}
+.ind-sidebar-title {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+}
+.ind-detail-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 13px; color: var(--body-text); margin-bottom: 10px;
+}
+.ind-detail-item strong { color: var(--ink); display: block; }
+.ind-share-row { display: flex; flex-direction: column; gap: 8px; }
+.ind-share-btn {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--f-body); font-size: 13px; font-weight: 500;
+  color: var(--body-text); background: var(--white);
+  border: 1.5px solid var(--rule); padding: 10px 14px;
+  border-radius: var(--r-sm); cursor: pointer; transition: all .2s;
+  width: 100%;
+}
+.ind-share-btn:hover { border-color: var(--green-border); color: var(--green); background: var(--green-pale); }
+
+
+/* ── RELATED ────────────────────────────────────── */
+.ind-related { padding: 0 52px 80px; }
+.ind-related-inner { max-width: 1280px; margin: 0 auto; }
+.ind-related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 32px; }
+.ind-rel-card {
+  background: var(--white); border: 1px solid var(--rule);
+  border-radius: var(--r-lg); overflow: hidden; transition: all .3s;
+  display: flex; flex-direction: column; position: relative;
+}
+.ind-rel-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 3px; background: var(--green);
+  transform: scaleX(0); transform-origin: left; transition: transform .3s;
+}
+.ind-rel-card:hover { transform: translateY(-4px); box-shadow: var(--sh-md); }
+.ind-rel-card:hover::after { transform: scaleX(1); }
+.ind-rel-img { aspect-ratio: 16/9; overflow: hidden; }
+.ind-rel-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+.ind-rel-card:hover .ind-rel-img img { transform: scale(1.04); }
+.ind-rel-body { padding: 18px; flex: 1; }
+.ind-rel-cat { font-family: var(--f-mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--green); margin-bottom: 6px; }
+.ind-rel-title { font-family: var(--f-display); font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; line-height: 1.3; }
+.ind-rel-meta { font-size: 11.5px; color: var(--muted); }
+
+
+/* ── RESPONSIVE ─────────────────────────────────── */
+@media (max-width: 1100px) {
+  .ind-hero { padding: calc(var(--nav-h) + 40px) 24px 52px; }
+  .ind-hero-inner { grid-template-columns: 1fr; }
+  .ind-breadcrumb { grid-column: auto; }
+  .ind-hero-cover { display: none; }
+  .ind-body { padding: 52px 24px; }
+  .ind-body-grid { grid-template-columns: 1fr; }
+  .ind-related { padding: 0 24px 52px; }
+  .ind-related-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .ind-related-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+{# ── Reading progress bar ── #}
+<div class="ind-progress-bar">
+  <div class="ind-progress-fill" id="progressFill"></div>
+</div>
+
+
+{# ══ HERO ══ #}
+<div class="ind-hero">
+  <div class="ind-glow"></div>
+  <div class="ind-hero-inner">
+
+    <nav class="ind-breadcrumb">
+      <a href="{% url 'home' %}">Home</a>
+      <span>/</span>
+      <a href="{% url 'insights' %}">Insights</a>
+      <span>/</span>
+      <span>{{ insight.category }}</span>
+    </nav>
+
+    <div>
+      <div class="ind-badges">
+        <span class="ind-badge {% if insight.accent == 'red' %}cat-r{% else %}cat-g{% endif %}">
+          {{ insight.type_icon }} {{ insight.type_label }}
+        </span>
+        <span class="ind-badge {% if insight.accent == 'red' %}cat-r{% else %}cat-g{% endif %}">
+          {{ insight.category }}
+        </span>
+        {% if insight.is_premium %}
+          <span class="ind-badge premium">⭐ Premium</span>
+        {% endif %}
+        {% if insight.is_sponsored %}
+          <span class="ind-badge sponsored">Sponsored</span>
+        {% endif %}
+      </div>
+
+      <h1 class="ind-title">{{ insight.title }}</h1>
+      <p class="ind-excerpt">{{ insight.excerpt }}</p>
+
+      <div class="ind-meta-row">
+        {% if insight.author_name %}
+          <span>✍ {{ insight.author_name }}{% if insight.author_role %}, {{ insight.author_role }}{% endif %}</span>
+          <span style="color:rgba(255,255,255,.15)">·</span>
+        {% endif %}
+        <span>📅 {{ insight.published_at }}</span>
+        <span style="color:rgba(255,255,255,.15)">·</span>
+        <span>⏱ {{ insight.read_time }} min read</span>
+        <span style="color:rgba(255,255,255,.15)">·</span>
+        <span>👁 {{ insight.views }} views</span>
+      </div>
+
+      <div class="ind-tags">
+        {% for tag in insight.tags %}
+          <span class="ind-tag">{{ tag }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="ind-actions">
+        {% if insight.pdf_label %}
+          <a href="#" class="ind-btn-primary">
+            ⬇ {{ insight.pdf_label }}
+          </a>
+        {% endif %}
+        {% if insight.video_url %}
+          <a href="{{ insight.video_url }}" target="_blank" rel="noopener"
+             class="ind-btn-primary">
+            ▶ Watch Video
+          </a>
+        {% endif %}
+        <a href="{% url 'insights' %}" class="ind-btn-ghost">
+          ← All Insights
+        </a>
+      </div>
+    </div>
+
+    {# Cover image #}
+    <div class="ind-hero-cover">
+      {% if insight.cover %}
+        <img src="{{ insight.cover }}" alt="{{ insight.title }}">
+      {% else %}
+        <div class="ind-hero-cover-placeholder">{{ insight.type_icon }}</div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+
+{# ══ BODY ══ #}
+<div class="ind-body">
+  <div class="ind-body-grid">
+
+    {# Main article #}
+    <div>
+
+      {# Video embed if video type #}
+      {% if insight.video_url %}
+      <div class="ind-video-wrap">
+        <iframe src="{{ insight.video_url }}"
+                title="{{ insight.title }}"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media"
+                allowfullscreen>
+        </iframe>
+      </div>
+      {% endif %}
+
+      {# Article body #}
+      <div class="ind-article" id="articleBody">
+        {% if insight.body %}
+          {{ insight.body|linebreaks }}
+        {% else %}
+          {# Placeholder content for dummy data #}
+          <p>
+            {{ insight.excerpt }} This is a preview of the full article content.
+            The complete article covers detailed analysis, case studies and
+            actionable recommendations for enterprise technology leaders.
+          </p>
+          <h2>Key Findings</h2>
+          <p>
+            Enterprise technology adoption across Africa continues to accelerate,
+            driven by mobile-first strategies, cloud migration and a growing
+            appetite for automation. Our research across 50+ organisations
+            reveals consistent patterns in how leading enterprises approach
+            digital transformation.
+          </p>
+          <blockquote>
+            The organisations seeing the greatest ROI from technology investment
+            are those that treat IT as strategic infrastructure — not a cost centre.
+          </blockquote>
+          <h3>What This Means for Your Business</h3>
+          <p>
+            For enterprise leaders in
+            {% if is_nigeria %}Nigeria{% else %}global markets{% endif %},
+            the implications are clear: the gap between technology leaders and
+            laggards is widening. Early movers are seeing compounding advantages
+            in operational efficiency, talent acquisition and market positioning.
+          </p>
+          <p>
+            <a href="{% url 'contact' %}" style="color:var(--green);font-weight:600">
+              Speak to our team &rarr;
+            </a>
+            to understand how these trends apply to your specific operating environment.
+          </p>
+        {% endif %}
+      </div>
+
+      {# Engagement bar #}
+      <div class="ind-engage-bar">
+        <button class="ind-engage-btn" id="likeBtn"
+                onclick="toggleDetailLike(this, {{ insight.likes }})">
+          ♡ <span>{{ insight.likes }}</span> Likes
+        </button>
+        <button class="ind-engage-btn"
+                onclick="shareInsight('{{ insight.title|escapejs }}', window.location.href)">
+          🔗 LinkedIn
+        </button>
+        <button class="ind-engage-btn"
+                onclick="shareTwitter('{{ insight.title|escapejs }}', window.location.href)">
+          𝕏 Twitter
+        </button>
+        {% if insight.pdf_label %}
+          <button class="ind-engage-btn">⬇ {{ insight.pdf_label }}</button>
+        {% endif %}
+      </div>
+
+      {# Author card #}
+      {% if insight.author_name %}
+      <div class="ind-author-card">
+        <div class="ind-author-avatar">{{ insight.author_name|slice:":1" }}</div>
+        <div>
+          <div class="ind-author-name">{{ insight.author_name }}</div>
+          <div class="ind-author-role">{{ insight.author_role }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+    {# Sticky sidebar #}
+    <div class="ind-sidebar">
+      <div class="ind-sidebar-card">
+        <div class="ind-sidebar-title">Article Details</div>
+        <div class="ind-detail-item">
+          <span>📅</span>
+          <div><strong>{{ insight.published_at }}</strong>Published</div>
+        </div>
+        <div class="ind-detail-item">
+          <span>⏱</span>
+          <div><strong>{{ insight.read_time }} minutes</strong>Read time</div>
+        </div>
+        <div class="ind-detail-item">
+          <span>📁</span>
+          <div><strong>{{ insight.category }}</strong>Category</div>
+        </div>
+        <div class="ind-detail-item">
+          <span>👁</span>
+          <div><strong>{{ insight.views }}</strong>Views</div>
+        </div>
+      </div>
+
+      <div class="ind-sidebar-card">
+        <div class="ind-sidebar-title">Share This</div>
+        <div class="ind-share-row">
+          <button class="ind-share-btn"
+                  onclick="shareInsight('{{ insight.title|escapejs }}', window.location.href)">
+            💼 Share on LinkedIn
+          </button>
+          <button class="ind-share-btn"
+                  onclick="shareTwitter('{{ insight.title|escapejs }}', window.location.href)">
+            𝕏 Share on Twitter
+          </button>
+          <button class="ind-share-btn"
+                  onclick="copyLink()">
+            🔗 Copy Link
+          </button>
+        </div>
+      </div>
+
+      {% if insight.pdf_label %}
+      <a href="#"
+         style="display:block;text-align:center;font-family:var(--f-body);
+                font-size:14px;font-weight:600;color:#fff;background:var(--green);
+                padding:13px;border-radius:var(--r-md);
+                box-shadow:0 3px 14px rgba(17,135,75,.35);transition:all .25s">
+        ⬇ {{ insight.pdf_label }}
+      </a>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+
+{# ══ RELATED INSIGHTS ══ #}
+{% if related %}
+<div class="ind-related">
+  <div class="ind-related-inner">
+    <div class="eyebrow green">More from Tranter</div>
+    <h2 class="section-title" style="margin-top:12px;margin-bottom:0">Related Insights</h2>
+    <div class="ind-related-grid">
+      {% for rel in related %}
+      <a href="{% url 'insight_detail' slug=rel.slug %}" class="ind-rel-card">
+        <div class="ind-rel-img">
+          {% if rel.cover %}
+            <img src="{{ rel.cover }}" alt="{{ rel.title }}" loading="lazy">
+          {% endif %}
+        </div>
+        <div class="ind-rel-body">
+          <div class="ind-rel-cat">{{ rel.type_icon }} {{ rel.category }}</div>
+          <div class="ind-rel-title">{{ rel.title }}</div>
+          <div class="ind-rel-meta">{{ rel.read_time }} min · {{ rel.published_at }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+{# ══ CTA ══ #}
+<div class="cta-band">
+  <div class="cta-band-inner">
+    <div class="cta-text">
+      <span class="cta-eyebrow">Put insights into action</span>
+      <h2 class="cta-title">Let&rsquo;s design systems<br>that drive results.</h2>
+      <p class="cta-sub">
+        Our team can help you apply the thinking behind this insight
+        to your specific operating environment.
+      </p>
+    </div>
+    <div class="cta-actions">
+      <a href="{% url 'contact' %}" class="cta-btn-w">Book a Consultation &rarr;</a>
+      <a href="{% url 'insights' %}" class="cta-btn-o">More Insights</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+'use strict';
+
+/* ── READING PROGRESS ──────────────────────────── */
+(function() {
+  const fill = document.getElementById('progressFill');
+  const body = document.getElementById('articleBody');
+  if (!fill || !body) return;
+  window.addEventListener('scroll', () => {
+    const rect  = body.getBoundingClientRect();
+    const total = body.offsetHeight;
+    const read  = Math.max(0, -rect.top);
+    const pct   = Math.min(1, read / total);
+    fill.style.transform = 'scaleX(' + pct + ')';
+  }, { passive: true });
+})();
+
+/* ── LIKE ───────────────────────────────────────── */
+function toggleDetailLike(btn, base) {
+  const liked = btn.classList.contains('liked');
+  btn.classList.toggle('liked');
+  const n = liked ? base - 1 : base + 1;
+  btn.innerHTML = (liked ? '♡ ' : '♥ ') + '<span>' + n + '</span> Likes';
+}
+
+/* ── SHARE ──────────────────────────────────────── */
+function shareInsight(title, url) {
+  window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url),
+              '_blank', 'width=600,height=500');
+}
+function shareTwitter(title, url) {
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(title) + '&url=' + encodeURIComponent(url),
+              '_blank', 'width=600,height=400');
+}
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+</script>
+{% endblock %}
