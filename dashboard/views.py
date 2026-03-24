@@ -146,8 +146,6 @@ def task_list(request):
 
     context = {'tasks': tasks, 'form': TaskForm()}
 
-    if request.headers.get('HX-Request'):
-        return render(request, 'dashboard/partials/task_list.html', context)
     return render(request, 'dashboard/task_list.html', context)
 
 
@@ -166,19 +164,13 @@ def task_create(request):
             task.created_by = request.user
             task.save()
             messages.success(request, f'✅ Task "{task.title}" created successfully!')
-            
-            # If using HTMX modal, close and refresh
-            if request.headers.get('HX-Request'):
-                return HttpResponse(status=204, headers={'HX-Trigger': 'taskCreated'})
-            
             return redirect('dashboard:task_list')
         else:
-            # If form is invalid and it's HTMX, return the form with errors
-            if request.headers.get('HX-Request'):
-                return render(request, 'dashboard/task_form_partial.html', {'form': form})
+            # Form is invalid - render the form page with errors
+            return render(request, 'dashboard/task_form.html', {'form': form})
     else:
         form = TaskForm()
-        
+
     return render(request, 'dashboard/task_form.html', {'form': form})
 
 

@@ -12,14 +12,14 @@
      Slides background images/video. Syncs headline
      copy with a staggered word-by-word fade-in.
   ────────────────────────────────────────────────── */
-  const slidesEl  = document.getElementById('heroSlides');
-  const dotsEl    = document.getElementById('slideDots');
-  const copiesEl  = document.querySelectorAll('.slide-copy');
-  const slideEls  = slidesEl ? slidesEl.querySelectorAll('.slide') : [];
-  const dotEls    = dotsEl   ? dotsEl.querySelectorAll('.sdot')    : [];
+  const slidesEl = document.getElementById('heroSlides');
+  const dotsEl = document.getElementById('slideDots');
+  const copiesEl = document.querySelectorAll('.slide-copy');
+  const slideEls = slidesEl ? slidesEl.querySelectorAll('.slide') : [];
+  const dotEls = dotsEl ? dotsEl.querySelectorAll('.sdot') : [];
 
-  let current   = 0;
-  let timer     = null;
+  let current = 0;
+  let timer = null;
   const DURATION = 5800;   // ms between auto-advances
 
   function goTo(index) {
@@ -55,10 +55,10 @@
   function staggerWords(copyEl) {
     // Split headline spans into individual word spans for stagger
     const headline = copyEl.querySelector('.h-headline');
-    const sub      = copyEl.querySelector('.h-sub');
-    const actions  = copyEl.closest('.hero-left')
-                       ? copyEl.closest('.hero-left').querySelector('.h-actions')
-                       : null;
+    const sub = copyEl.querySelector('.h-sub');
+    const actions = copyEl.closest('.hero-left')
+      ? copyEl.closest('.hero-left').querySelector('.h-actions')
+      : null;
 
     // Animate headline lines
     if (headline) {
@@ -70,14 +70,14 @@
     // Cascade sub and actions
     [sub, actions].forEach((el, i) => {
       if (!el) return;
-      el.style.opacity    = '0';
-      el.style.transform  = 'translateY(18px)';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(18px)';
       el.style.transition = 'none';
       void el.offsetWidth;
       el.style.transition = `opacity .65s ease ${0.35 + i * 0.15}s,
                               transform .65s ease ${0.35 + i * 0.15}s`;
-      el.style.opacity    = '1';
-      el.style.transform  = 'translateY(0)';
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
     });
   }
 
@@ -156,6 +156,44 @@
   }
 
 
+
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+
+    const elements = document.querySelectorAll(
+      '.svc-card, .stat-item, .pillar, .sector-card, .process-step'
+    );
+
+    if (!('IntersectionObserver' in window)) {
+      // Fallback: show everything
+      elements.forEach(el => el.classList.add('in-view'));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+
+    elements.forEach(el => {
+      el.classList.add('animate-on-scroll'); // start hidden
+      observer.observe(el);
+    });
+
+  });
+
+
+
+
+
+
   /* ──────────────────────────────────────────────────
      3. STAT COUNTERS
      Counts up from 0 to target value when the stats
@@ -168,14 +206,14 @@
   }
 
   function animateCounter(el) {
-    const target   = parseInt(el.dataset.target, 10);
+    const target = parseInt(el.dataset.target, 10);
     const duration = 1800;
-    const start    = performance.now();
+    const start = performance.now();
 
     function step(now) {
-      const elapsed  = now - start;
+      const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
-      const eased    = easeOutCubic(progress);
+      const eased = easeOutCubic(progress);
       el.textContent = Math.floor(eased * target);
       if (progress < 1) requestAnimationFrame(step);
       else el.textContent = target;

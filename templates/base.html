@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,15 +7,136 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="{% block meta_description %}Tranter — Intelligent Business Infrastructure{% endblock %}">
   <title>{% block title %}Tranter{% endblock %} | Tranter IT Infrastructure Services</title>
-
-  <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png">
+  <link rel="icon" href="{% static 'images/tranter-logo.png' %}" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  
+  <!-- Optimized Demo Modal CSS -->
+  <style>
+    /* ── DEMO MODAL ────────────────────────────────── */
+    .demo-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
 
+    .demo-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .demo-modal-content {
+      background: var(--white, #fff);
+      border-radius: var(--r-lg, 12px);
+      box-shadow: var(--sh-xl, 0 25px 50px -12px rgba(0, 0, 0, 0.25));
+      width: 95%;
+      max-width: 480px;
+      padding: 2rem;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(20px) scale(0.95);
+      transition: transform 0.3s ease;
+    }
+
+    .demo-modal.active .demo-modal-content {
+      transform: translateY(0) scale(1);
+    }
+
+    .demo-modal h2 {
+      font-family: var(--f-display, inherit);
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+      color: var(--text, #1a1a1a);
+    }
+
+    .demo-modal p {
+      font-size: 0.9rem;
+      color: var(--muted, #666);
+      margin-bottom: 1.25rem;
+    }
+
+    .demo-close {
+      position: absolute;
+      top: 1rem;
+      right: 1.25rem;
+      font-size: 1.75rem;
+      color: var(--muted, #666);
+      cursor: pointer;
+      background: none;
+      border: none;
+      line-height: 1;
+      padding: 0.25rem;
+      transition: color 0.2s ease;
+    }
+
+    .demo-close:hover {
+      color: var(--text, #1a1a1a);
+    }
+
+    /* Form Styles */
+    .demo-modal form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+    }
+
+    .demo-modal input,
+    .demo-modal select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border, #e0e0e0);
+      border-radius: var(--r-md, 8px);
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .demo-modal input:focus,
+    .demo-modal select:focus {
+      outline: none;
+      border-color: var(--primary, #e53935);
+      box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.1);
+    }
+
+    .demo-modal button[type="submit"] {
+      margin-top: 0.5rem;
+      padding: 0.875rem 1.5rem;
+      background: var(--primary, #e53935);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-md, 8px);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .demo-modal button[type="submit"]:hover {
+      background: var(--primary-dark, #c62828);
+      transform: translateY(-1px);
+    }
+
+    /* Body lock when modal open */
+    body.modal-open {
+      overflow: hidden;
+    }
+  </style>
+  
   {% block extra_css %}{% endblock %}
 </head>
+
 <body>
 
 <nav id="nav">
@@ -27,143 +149,201 @@
     </a>
 
     <ul class="nav-links">
-      <li><a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a></li>
-      <li><a href="{% url 'who_we_are' %}" {% if request.resolver_match.url_name == 'who_we_are' %}class="active"{% endif %}>Who We Are</a></li>
+      <li>
+        <!-- Using a simpler approach: check if we're on home page -->
+        <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Home</a>
+      </li>
+      <li>
+        <!-- Alternative: Pass 'active_page' from context -->
+        <a href="{% url 'who_we_are' %}" class="{% if active_page == 'who_we_are' %}active{% endif %}">Who We Are</a>
+      </li>
 
       <li class="has-mega">
-        <a href="{% url 'what_we_do' %}" class="mega-trigger {% if request.resolver_match.url_name in 'what_we_do service_detail' %}active{% endif %}">
+        <!-- Simplified active class logic -->
+        <a href="{% url 'what_we_do' %}" class="mega-trigger {% if active_page == 'what_we_do' or active_page == 'service_detail' %}active{% endif %}">
           What We Do
-          <svg class="nav-caret" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg class="nav-caret" width="10" height="6" viewBox="0 0 10 6" fill="none">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
         </a>
 
         <div class="mega-panel">
           <div class="mega-inner">
+
+            <!-- LEFT: CORE SERVICES -->
             <div class="mega-col">
               <p class="mega-col-label">Core Services</p>
 
               <a href="{% url 'service_detail' slug='it-support' %}" class="mega-item">
                 <span class="mega-icon">⚡</span>
-                <div><span class="mega-item-title">IT Support Services</span><span class="mega-item-sub">Infrastructure & managed support</span></div>
+                <div>
+                  <span class="mega-item-title">IT Support Services</span>
+                  <span class="mega-item-sub">Infrastructure & managed support</span>
+                </div>
               </a>
+
               <a href="{% url 'service_detail' slug='cybersecurity' %}" class="mega-item">
                 <span class="mega-icon">🛡️</span>
-                <div><span class="mega-item-title">Cybersecurity</span><span class="mega-item-sub">Security as infrastructure</span></div>
+                <div>
+                  <span class="mega-item-title">Cybersecurity</span>
+                  <span class="mega-item-sub">Security as infrastructure</span>
+                </div>
               </a>
 
-              <!-- All services now always shown (remove if/endif if you want region-specific again) -->
               <a href="{% url 'service_detail' slug='smart-solutions' %}" class="mega-item">
                 <span class="mega-icon">🤖</span>
-                <div><span class="mega-item-title">Smart Solutions</span><span class="mega-item-sub">Automation & intelligent workflows</span></div>
+                <div>
+                  <span class="mega-item-title">Smart Solutions</span>
+                  <span class="mega-item-sub">Automation & workflows</span>
+                </div>
               </a>
+
               <a href="{% url 'service_detail' slug='hr-support' %}" class="mega-item">
                 <span class="mega-icon">👥</span>
-                <div><span class="mega-item-title">HR Support Services</span><span class="mega-item-sub">People & process optimization</span></div>
+                <div>
+                  <span class="mega-item-title">HR Support</span>
+                  <span class="mega-item-sub">People & optimization</span>
+                </div>
               </a>
+
               <a href="{% url 'service_detail' slug='digital-marketing' %}" class="mega-item">
                 <span class="mega-icon">📈</span>
-                <div><span class="mega-item-title">Digital Marketing & Brand</span><span class="mega-item-sub">Growth & visibility</span></div>
+                <div>
+                  <span class="mega-item-title">Digital Marketing</span>
+                  <span class="mega-item-sub">Growth & visibility</span>
+                </div>
               </a>
+
               <a href="{% url 'service_detail' slug='bpo' %}" class="mega-item">
                 <span class="mega-icon">🔄</span>
-                <div><span class="mega-item-title">Business Process Outsourcing</span><span class="mega-item-sub">Efficiency at scale</span></div>
+                <div>
+                  <span class="mega-item-title">BPO</span>
+                  <span class="mega-item-sub">Efficiency at scale</span>
+                </div>
               </a>
+
               <a href="{% url 'service_detail' slug='website-development' %}" class="mega-item">
                 <span class="mega-icon">🌐</span>
-                <div><span class="mega-item-title">Website Development</span><span class="mega-item-sub">Modern & optimized sites</span></div>
+                <div>
+                  <span class="mega-item-title">Website Development</span>
+                  <span class="mega-item-sub">Modern & optimized</span>
+                </div>
               </a>
             </div>
 
+            <!-- RIGHT: ZOHO CARD -->
             <div class="mega-card">
               <div class="mega-card-body">
-                <span class="mega-card-eyebrow">ISO Certified</span>
-                <h3 class="mega-card-title">Enterprise-Grade Technology</h3>
-                <p class="mega-card-text">99% SLA • 200+ engineers • 50+ OEM partners</p>
-                <a href="{% url 'contact' %}" class="mega-card-cta">Free Consultation →</a>
+                <span class="mega-card-eyebrow">Zoho Ecosystem</span>
+                <h3 class="mega-card-title">Business Tools That Scale With You</h3>
+                <p class="mega-card-text">
+                  {% if is_nigeria %}
+                    Full suite for CRM, finance, HR & operations
+                  {% else %}
+                    CRM • Books • Workplace • Desk
+                  {% endif %}
+                </p>
+                <div class="mega-card-actions">
+                  <a href="{% url 'zoho:zoho_home' %}" class="mega-card-cta primary">
+                    Explore Zoho →
+                  </a>
+                  <a href="{% url 'contact' %}" class="mega-card-cta secondary">
+                    Talk to Us
+                  </a>
+                </div>
               </div>
             </div>
+
           </div>
         </div>
       </li>
 
-      <li><a href="{% url 'events' %}" {% if request.resolver_match.url_name == 'events' %}class="active"{% endif %}>Events</a></li>
-      <li><a href="{% url 'insights' %}" {% if request.resolver_match.url_name == 'insights' %}class="active"{% endif %}>Insights</a></li>
-      <li><a href="{% url 'contact' %}" {% if request.resolver_match.url_name == 'contact' %}class="active"{% endif %}>Contact</a></li>
+      <li>
+        <a href="{% url 'events' %}" class="{% if active_page == 'events' %}active{% endif %}">Events</a>
+      </li>
+      <li>
+        <a href="{% url 'insights' %}" class="{% if active_page == 'insights' %}active{% endif %}">Insights</a>
+      </li>
+      <li>
+        <a href="{% url 'contact' %}" class="{% if active_page == 'contact' %}active{% endif %}">Contact</a>
+      </li>
     </ul>
 
     <div class="nav-actions">
-      <a href="{% url 'set_region' %}?region={% if is_nigeria %}GLOBAL{% else %}NG{% endif %}" 
+      <a href="{% url 'set_region' %}?region={% if is_nigeria %}GLOBAL{% else %}NG{% endif %}"
          class="geo-switcher-btn" title="Switch Region">
         {% if is_nigeria %}🌍 Global{% else %}🇳🇬 Nigeria{% endif %}
       </a>
-      <a href="{% url 'contact' %}" class="btn-nav-ghost">Contact Us</a>
-      <button onclick="openDemoModal()" class="btn-nav-red">Book a Demo</button>
+      <!-- Updated to use openDemoModal() -->
+      <button type="button" onclick="openDemoModal()" class="btn-nav-red">Book a Demo</button>
     </div>
 
-    <button class="burger" id="burger" aria-label="Toggle menu">
+    <button class="burger" id="burger" aria-label="Toggle menu" onclick="toggleMobileNav()">
       <span></span><span></span><span></span>
     </button>
-
-    <!-- Demo Modal -->
-    <div id="demoModal" class="demo-modal">
-      <div class="demo-modal-content">
-        <span class="demo-close" onclick="closeDemoModal()">&times;</span>
-
-        <h2>Book Your Demo</h2>
-        <p>Share your details — we'll get back to you quickly.</p>
-
-        <form action="#" method="post">
-          {% csrf_token %}
-          <input type="text" name="name" placeholder="Your Name" required>
-          <input type="email" name="email" placeholder="Email Address" required>
-          <input type="tel" name="whatsapp" placeholder="WhatsApp Number (with country code)" required>
-          <input type="text" name="company" placeholder="Company Name" required>
-
-          <select name="service" required>
-            <option value="" disabled selected>Select Service Interested In</option>
-            <option value="it-support">IT Support Services</option>
-            <option value="cybersecurity">Cybersecurity</option>
-            <option value="smart-solutions">Smart Solutions</option>
-            <option value="hr-support">HR Support Services</option>
-            <option value="digital-marketing">Digital Marketing & Brand Development</option>
-            <option value="bpo">Business Process Outsourcing</option>
-            <option value="website-development">Website Development & Optimization</option>
-          </select>
-
-          <button type="submit">Request Demo →</button>
-        </form>
-      </div>
-    </div>
   </div>
 </nav>
+
+<!-- Mobile Nav Overlay -->
+<div class="nav-overlay" id="navOverlay" onclick="closeMobileNav()"></div>
+
+<!-- Mobile Nav Drawer -->
+<div class="nav-drawer" id="navDrawer">
+  <ul class="nav-links">
+    <li>
+      <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Home</a>
+    </li>
+    <li>
+      <a href="{% url 'who_we_are' %}" class="{% if active_page == 'who_we_are' %}active{% endif %}">Who We Are</a>
+    </li>
+    <li>
+      <a href="{% url 'what_we_do' %}" class="{% if active_page == 'what_we_do' or active_page == 'service_detail' %}active{% endif %}">What We Do</a>
+    </li>
+    <li>
+      <a href="{% url 'events' %}" class="{% if active_page == 'events' %}active{% endif %}">Events</a>
+    </li>
+    <li>
+      <a href="{% url 'insights' %}" class="{% if active_page == 'insights' %}active{% endif %}">Insights</a>
+    </li>
+    <li>
+      <a href="{% url 'contact' %}" class="{% if active_page == 'contact' %}active{% endif %}">Contact</a>
+    </li>
+  </ul>
+  <div class="nav-actions">
+    <a href="{% url 'set_region' %}?region={% if is_nigeria %}GLOBAL{% else %}NG{% endif %}"
+       class="geo-switcher-btn" title="Switch Region">
+      {% if is_nigeria %}🌍 Global{% else %}🇳🇬 Nigeria{% endif %}
+    </a>
+    <!-- Updated to use openDemoModal() and closeMobileNav() -->
+    <button type="button" onclick="openDemoModal(); closeMobileNav();" class="btn-nav-red">Book a Demo</button>
+  </div>
+</div>
 
 <main id="main">
   {% block content %}{% endblock %}
 </main>
 
 <footer>
-  <!-- your footer here -->
-   <footer>
   <div class="foot-inner">
     <div class="foot-grid">
+
       <!-- Column 1: Logo + Tagline + Social -->
       <div class="foot-col foot-main">
         <div class="foot-logo-row">
           <img src="{% static 'images/tranter-logo.png' %}" alt="Tranter" class="foot-logo-img">
           <span class="foot-wordmark">TRANTER IT</span>
         </div>
-
         <p class="foot-tagline">
           Tranter IT is a global technology services firm delivering enterprise-grade solutions through remote global teams and on-site engagement where required. We partner with organisations across industries to design, build and operate digital systems that power modern business.
         </p>
-
         <div class="foot-social-icons">
           <a href="https://www.linkedin.com/company/tranter-it" target="_blank" rel="noopener" aria-label="LinkedIn">
             <span class="social-icon">in</span>
           </a>
-          <a href="#" target="_blank" rel="noopener" aria-label="Facebook">
+          <a href="https://www.facebook.com/tranterit" target="_blank" rel="noopener" aria-label="Facebook">
             <span class="social-icon">fb</span>
           </a>
-          <a href="#" target="_blank" rel="noopener" aria-label="Instagram">
+          <a href="https://www.instagram.com/tranter_it" target="_blank" rel="noopener" aria-label="Instagram">
             <span class="social-icon">ig</span>
           </a>
           <a href="https://twitter.com/tranter_it" target="_blank" rel="noopener" aria-label="X (Twitter)">
@@ -178,7 +358,7 @@
         <ul>
           <li><a href="{% url 'service_detail' slug='it-support' %}">IT Support Services</a></li>
           <li><a href="{% url 'what_we_do' %}">What We Do</a></li>
-          <li><a href="#">ManageEngine</a></li>
+          <li><a href="{% url 'what_we_do' %}">ManageEngine</a></li>
           <li><a href="{% url 'insights' %}">Insights</a></li>
           <li><a href="{% url 'contact' %}">Contact</a></li>
         </ul>
@@ -188,9 +368,9 @@
       <div class="foot-col">
         <h4>Free Smart Tools</h4>
         <ul>
-          <li><a href="#">Financial Health Calculator</a></li>
-          <li><a href="#">Revenue Leak Calculator</a></li>
-          <li><a href="#">Customer Churn Cost Calculator</a></li>
+          <li><a href="{% url 'contact' %}">Financial Health Calculator</a></li>
+          <li><a href="{% url 'contact' %}">Revenue Leak Calculator</a></li>
+          <li><a href="{% url 'contact' %}">Customer Churn Cost Calculator</a></li>
         </ul>
       </div>
 
@@ -215,65 +395,112 @@
           </li>
         </ul>
       </div>
+
     </div>
 
     <!-- Bottom bar -->
     <div class="foot-bar">
       <span>Copyright © 2026 Tranter IT. All Rights Reserved.</span>
-
       <div class="foot-legal">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
-        <a href="#">Cookie Policy</a>
+        <a href="{% url 'contact' %}">Privacy Policy</a>
+        <a href="{% url 'contact' %}">Terms of Service</a>
+        <a href="{% url 'contact' %}">Cookie Policy</a>
       </div>
     </div>
   </div>
 </footer>
 
+<!-- Demo Modal HTML -->
+<div id="demoModal" class="demo-modal" aria-hidden="true">
+  <div class="demo-modal-content" role="dialog" aria-modal="true" aria-labelledby="demoModalTitle">
+    <button type="button" class="demo-close" aria-label="Close modal">&times;</button>
+
+    <h2 id="demoModalTitle">Book Your Demo</h2>
+    <p>Share your details — we'll get back to you quickly.</p>
+
+    <form action="{% url 'book_demo_popup' %}" method="post">
+      {% csrf_token %}
+      <input type="text" name="name" placeholder="Your Name" required>
+      <input type="email" name="email" placeholder="Email Address" required>
+      <input type="tel" name="whatsapp" placeholder="WhatsApp Number (with country code)" required>
+      <input type="text" name="company" placeholder="Company Name" required>
+
+      <select name="service" required>
+        <option value="" disabled selected>Select Service Interested In</option>
+        <option value="it-support">IT Support Services</option>
+        <option value="cybersecurity">Cybersecurity</option>
+        <option value="smart-solutions">Smart Solutions</option>
+        <option value="hr-support">HR Support Services</option>
+        <option value="digital-marketing">Digital Marketing & Brand Development</option>
+        <option value="bpo">Business Process Outsourcing</option>
+        <option value="website-development">Website Development & Optimization</option>
+      </select>
+
+      <button type="submit">Request Demo →</button>
+    </form>
+  </div>
+</div>
 
 
 
 
-</footer>
+
 
 <script>
-// Mega menu JS (kept as fallback – CSS hover should work too)
-let megaTimeout;
-const trigger = document.querySelector('.mega-trigger');
-const panel = document.querySelector('.mega-panel');
-
-if (trigger && panel) {
-  trigger.addEventListener('mouseenter', () => {
-    clearTimeout(megaTimeout);
-    panel.classList.add('active');
+// ── DEMO MODAL CONTROLLER ──────────────────────────
+(function() {
+  'use strict';
+  
+  const modal = document.getElementById('demoModal');
+  if (!modal) return;
+  
+  const closeBtn = modal.querySelector('.demo-close');
+  const content = modal.querySelector('.demo-modal-content');
+  
+  // Open modal function (global for inline onclick)
+  window.openDemoModal = function() {
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    
+    // Focus first input for accessibility
+    setTimeout(() => {
+      const firstInput = modal.querySelector('input');
+      if (firstInput) firstInput.focus();
+    }, 100);
+  };
+  
+  // Close modal function (global)
+  window.closeDemoModal = function() {
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+  };
+  
+  // Close button click
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeDemoModal);
+  }
+  
+  // Click outside to close
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      closeDemoModal();
+    }
   });
-
-  trigger.addEventListener('mouseleave', () => {
-    megaTimeout = setTimeout(() => panel.classList.remove('active'), 220);
+  
+  // ESC key to close
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+      closeDemoModal();
+    }
   });
-
-  panel.addEventListener('mouseenter', () => clearTimeout(megaTimeout));
-  panel.addEventListener('mouseleave', () => {
-    megaTimeout = setTimeout(() => panel.classList.remove('active'), 220);
-  });
-}
-
-function openDemoModal() {
-  document.getElementById("demoModal").classList.add("active");
-  document.body.style.overflow = "hidden";
-}
-
-function closeDemoModal() {
-  document.getElementById("demoModal").classList.remove("active");
-  document.body.style.overflow = "auto";
-}
-
-document.getElementById("demoModal")?.addEventListener("click", e => {
-  if (e.target === e.currentTarget) closeDemoModal();
-});
+  
+})();
 </script>
 
 <script src="{% static 'js/base.js' %}"></script>
 {% block extra_js %}{% endblock %}
+
 </body>
 </html>

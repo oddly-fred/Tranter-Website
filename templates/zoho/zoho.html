@@ -1,0 +1,656 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Zoho Enterprise Solutions | Tranter IT – Authorized Partner{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/zoho.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════ -->
+<section class="hero light-hero">
+    <div class="hero-tint"></div>
+    <div class="hero-grid-bg"></div>
+
+    <div class="hero-body">
+        <div class="hero-left">
+
+            <!-- Geo notice (shown for NG users) -->
+            <div class="geo-notice" id="geo-notice">
+                <span class="geo-flag" id="geo-flag">🌍</span>
+                <span id="geo-text">Showing solutions for your region</span>
+            </div>
+
+            <img src="{% static 'images/download.png' %}" alt="Zoho – Tranter Authorized Partner"
+                class="hero-zoho-logo">
+
+            <div class="h-pill">
+                <span class="pill-pulse"></span>
+                Authorized Regional Partner
+            </div>
+
+            <div class="slide-copies">
+                <div class="slide-copy active">
+                    <h1 class="h-headline">
+                        Enterprise Zoho<br>
+                        <span class="t-green">Done Right.</span>
+                    </h1>
+                    <p class="h-sub">
+                        Tranter deploys the exact Zoho stack your enterprise needs —
+                        consolidating fragmented tools and
+                        <strong>cutting your software spend by up to 60%</strong>
+                        through expert local implementation.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Trust signals -->
+            <div class="hero-trust">
+                <div class="trust-badge">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Certified Zoho Partner
+                </div>
+                <div class="trust-divider"></div>
+                <div class="trust-badge">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                    </svg>
+                    200+ Enterprise Clients
+                </div>
+                <div class="trust-divider"></div>
+                <div class="trust-badge">
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    48-hr Onboarding SLA
+                </div>
+            </div>
+
+            <div class="h-actions" style="margin-top:32px;">
+                <a href="#solutions" class="btn-hero-g">Explore Solutions</a>
+                <a href="{% url 'contact' %}" class="btn-hero-r"
+                    style="color:var(--red);border-color:var(--red-border);">
+                    Book a Strategy Call
+                </a>
+            </div>
+        </div>
+
+        <!-- Inquiry form -->
+        <div class="hero-right">
+            <div class="form-card">
+                <div class="fc-stripe"></div>
+                <div class="fc-head">
+                    <div class="fc-label">Free Consultation</div>
+                    <h3 class="fc-title">Get Your Zoho Fit.</h3>
+                    <p style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5;">
+                        Tell us your goals — we'll map the right stack within 24 hours.
+                    </p>
+                </div>
+                <form class="cf" id="hero-inquiry-form" novalidate>
+                    <div class="cf-field">
+                        <label for="f-company">Company Name</label>
+                        <input id="f-company" type="text" name="company" placeholder="e.g. Dangote Group" required>
+                    </div>
+                    <div class="cf-field">
+                        <label for="f-email">Business Email</label>
+                        <input id="f-email" type="email" name="email" placeholder="you@company.com" required>
+                    </div>
+                    <div class="cf-field">
+                        <label for="f-size">Company Size</label>
+                        <div class="cf-select-wrap">
+                            <select id="f-size" name="size">
+                                <option value="">Select headcount…</option>
+                                <option>1 – 10 employees</option>
+                                <option>11 – 50 employees</option>
+                                <option>51 – 200 employees</option>
+                                <option>200+ employees</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="cf-field">
+                        <label for="f-interest">Primary Interest</label>
+                        <div class="cf-select-wrap">
+                            <select id="f-interest" name="interest">
+                                <option value="zoho-one">Zoho One – Full Suite</option>
+                                <option value="zoho-crm">Zoho CRM – Sales Automation</option>
+                                <option value="zoho-books">Zoho Books – Finance & VAT</option>
+                                <option value="zoho-desk">Zoho Desk – Customer Support</option>
+                                <option value="zoho-workplace">Zoho Workplace – Collaboration</option>
+                                <option value="zoho-people">Zoho People – HR & Payroll</option>
+                                <option value="zoho-projects">Zoho Projects – PM</option>
+                                <option value="zoho-analytics">Zoho Analytics – BI</option>
+                                <option value="custom">Custom Integration</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="cf-submit" id="form-submit-btn">
+                        Get My Free Consultation →
+                    </button>
+                    <p style="font-size:11.5px;color:var(--muted);text-align:center;margin-top:12px;">
+                        🔒 No spam. No obligation. Response within 24 hrs.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     STATS STRIP
+═══════════════════════════════════════════ -->
+<div class="stats-strip">
+    <div class="stats-inner">
+        <div class="stat-item">
+            <span class="stat-value" data-target="200" data-suffix="+">200<em>+</em></span>
+            <div class="stat-label">Enterprise Deployments</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" data-target="60" data-suffix="%">60<em>%</em></span>
+            <div class="stat-label">Avg. Cost Reduction</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" data-target="48" data-suffix="hr">48<em>hr</em></span>
+            <div class="stat-label">Onboarding SLA</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" data-target="9" data-suffix="/10">9<em>/10</em></span>
+            <div class="stat-label">Client Satisfaction</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     SOLUTIONS GRID
+═══════════════════════════════════════════ -->
+<section class="section" id="solutions">
+    <div class="section-hdr">
+        <div class="section-hdr-meta">
+            <div class="eyebrow green">Our Expertise</div>
+            <h2 class="section-title">
+                The Right Zoho Stack<br>for Your Enterprise.
+            </h2>
+            <p class="section-sub">
+                We don't just sell software — we solve business problems.
+                Every deployment is mapped to measurable outcomes.
+            </p>
+        </div>
+    </div>
+
+    <div class="svc-grid" id="svc-container">
+
+        <!-- GLOBAL CARDS (data-location="both") -->
+        <a href="{% url 'zoho:product_detail' slug='zoho-crm' %}" class="svc-card" data-location="both"
+            aria-label="Zoho CRM">
+            <div class="svc-num">01 / Customers</div>
+            <div class="svc-icon-wrap">🎯</div>
+            <h3 class="svc-name">Zoho CRM</h3>
+            <p class="svc-desc">
+                The gold standard for enterprise sales automation.
+                Map your customer journey and boost conversion rates
+                with AI-driven pipeline insights.
+            </p>
+            <span class="svc-arrow">View Full Specs →</span>
+        </a>
+
+        <a href="{% url 'zoho:product_detail' slug='zoho-books' %}" class="svc-card red" data-location="both"
+            aria-label="Zoho Books">
+            <div class="svc-num">02 / Finance</div>
+            <div class="svc-icon-wrap">📊</div>
+            <h3 class="svc-name">Zoho Books</h3>
+            <p class="svc-desc">
+                VAT-compliant cloud accounting built for African enterprises.
+                Automate invoicing, expenses, and multi-currency
+                financial reporting.
+            </p>
+            <span class="svc-arrow">View Full Specs →</span>
+        </a>
+
+        <a href="{% url 'zoho:product_detail' slug='zoho-desk' %}" class="svc-card" data-location="both"
+            aria-label="Zoho Desk">
+            <div class="svc-num">03 / Experience</div>
+            <div class="svc-icon-wrap">🎧</div>
+            <h3 class="svc-name">Zoho Desk</h3>
+            <p class="svc-desc">
+                Context-aware customer support across every channel.
+                Resolve tickets faster and build enterprise-grade
+                customer loyalty at scale.
+            </p>
+            <span class="svc-arrow">View Full Specs →</span>
+        </a>
+
+        <a href="{% url 'zoho:product_detail' slug='zoho-workplace' %}" class="svc-card red" data-location="both"
+            aria-label="Zoho Workplace">
+            <div class="svc-num">04 / Teamwork</div>
+            <div class="svc-icon-wrap">☁️</div>
+            <h3 class="svc-name">Zoho Workplace</h3>
+            <p class="svc-desc">
+                The secure, privacy-first alternative to Google Workspace.
+                Unified email, docs, and team chat at a
+                fraction of the cost.
+            </p>
+            <span class="svc-arrow">View Full Specs →</span>
+        </a>
+
+        <!-- NIGERIA-ONLY CARDS (data-location="nigeria") -->
+        <a href="{% url 'zoho:product_detail' slug='zoho-people' %}" class="svc-card hidden" data-location="nigeria"
+            aria-label="Zoho People">
+            <span class="svc-badge-ng">🇳🇬 NG</span>
+            <div class="svc-num">05 / Talent</div>
+            <div class="svc-icon-wrap">👥</div>
+            <h3 class="svc-name">Zoho People</h3>
+            <p class="svc-desc">
+                Manage the full employee lifecycle from onboarding to payroll.
+                Built for Nigeria's labour laws and
+                compliance requirements.
+            </p>
+            <span class="svc-arrow">View Full Specs →</span>
+        </a>
+
+        <a href="{% url 'zoho:product_detail' slug='zoho-projects' %}" class="svc-card red hidden"
+            data-location="nigeria" aria-label="Zoho Projects">
+            <span class="svc-badge-ng">🇳🇬 NG</span>
+            <div class="svc-num">06 / Delivery</div>
+            <div class="svc-icon-wrap">🏗️</div>
+            <h3 class="svc-name">Zoho Projects</h3>
+            <p class="svc-desc">
+                Deliver on time, every time. Track milestones,
+                task dependencies, and resource utilization
+                across distributed teams.
+            </p>
+            <span class="svc-arrow">View Full Specs →</span>
+        </a>
+
+        <a href="{% url 'zoho:product_detail' slug='zoho-analytics' %}" class="svc-card hidden" data-location="nigeria"
+            aria-label="Zoho Analytics">
+            <span class="svc-badge-ng">🇳🇬 NG</span>
+            <div class="svc-num">07 / Intelligence</div>
+            <div class="svc-icon-wrap">📈</div>
+            <h3 class="svc-name">Zoho Analytics</h3>
+            <p class="svc-desc">
+                Advanced BI and data visualization for enterprise
+                decision-makers. Connect any data source and
+                surface actionable insights instantly.
+            </p>
+            <span class="svc-arrow">View Full Specs →</span>
+        </a>
+
+        <a href="{% url 'zoho:product_detail' slug='zoho-creator' %}" class="svc-card red hidden"
+            data-location="nigeria" aria-label="Zoho Creator">
+            <span class="svc-badge-ng">🇳🇬 NG</span>
+            <div class="svc-num">08 / Development</div>
+            <div class="svc-icon-wrap">⚡</div>
+            <h3 class="svc-name">Zoho Creator</h3>
+            <p class="svc-desc">
+                Low-code application development for unique workflows.
+                Build bespoke internal apps 10× faster than
+                traditional development.
+            </p>
+            <span class="svc-arrow">View Full Specs →</span>
+        </a>
+
+    </div>
+
+    <!-- Bottom nudge CTA -->
+    <div class="grid-cta-nudge">
+        <p>Not sure which product fits your business?</p>
+        <a href="{% url 'contact' %}" class="btn-hero-g" style="display:inline-flex;">
+            Get a Free Product Recommendation →
+        </a>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     WHY TRANTER
+═══════════════════════════════════════════ -->
+<section class="why-strip">
+    <div class="why-inner">
+        <div class="why-hdr">
+            <div class="eyebrow green">Why Tranter</div>
+            <h2 class="section-title" style="margin-bottom:0;">
+                More Than a Reseller.<br>A Strategic Partner.
+            </h2>
+        </div>
+        <div class="why-grid">
+
+            <div class="why-card">
+                <div class="why-icon">🏆</div>
+                <div>
+                    <div class="why-card-title">Certified Expertise</div>
+                    <div class="why-card-text">
+                        Our consultants hold active Zoho certifications across
+                        every major product — not just CRM.
+                    </div>
+                </div>
+            </div>
+
+            <div class="why-card">
+                <div class="why-icon">🗺️</div>
+                <div>
+                    <div class="why-card-title">Local Implementation</div>
+                    <div class="why-card-text">
+                        We understand Nigerian compliance, tax regulations,
+                        and enterprise culture — no offshore guesswork.
+                    </div>
+                </div>
+            </div>
+
+            <div class="why-card">
+                <div class="why-icon">🔄</div>
+                <div>
+                    <div class="why-card-title">End-to-End Support</div>
+                    <div class="why-card-text">
+                        From discovery to go-live to ongoing optimization —
+                        we own the full delivery lifecycle with you.
+                    </div>
+                </div>
+            </div>
+
+            <div class="why-card">
+                <div class="why-icon">💰</div>
+                <div>
+                    <div class="why-card-title">Lower TCO</div>
+                    <div class="why-card-text">
+                        Consolidate 8–12 fragmented tools into one Zoho suite.
+                        Clients save an average of 60% on software costs.
+                    </div>
+                </div>
+            </div>
+
+            <div class="why-card">
+                <div class="why-icon">⚡</div>
+                <div>
+                    <div class="why-card-title">Fast Onboarding</div>
+                    <div class="why-card-text">
+                        Our structured 48-hour onboarding SLA ensures your
+                        team is productive from day one — guaranteed.
+                    </div>
+                </div>
+            </div>
+
+            <div class="why-card">
+                <div class="why-icon">📡</div>
+                <div>
+                    <div class="why-card-title">Data Sovereignty</div>
+                    <div class="why-card-text">
+                        Zoho never sells your data. We deploy with
+                        privacy-first configurations and strict access controls.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     CTA BAND
+═══════════════════════════════════════════ -->
+<section class="cta-band">
+    <div class="cta-band-inner">
+        <div>
+            <span class="cta-eyebrow">Ready to consolidate your stack?</span>
+            <h2 class="cta-title">
+                Cut software costs by 60%.<br>
+                Start your Zoho journey today.
+            </h2>
+            <p class="cta-sub">
+                Our certified consultants will audit your current tools and show you
+                exactly which Zoho products to replace them with — completely free.
+            </p>
+        </div>
+        <div class="cta-actions">
+            <a href="{% url 'contact' %}" class="cta-btn-w" style="color:var(--green);">
+                Request a Free Audit
+            </a>
+            <a href="tel:+2348183405221" class="cta-btn-o">
+                📞 Call Lagos Office
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+    (function () {
+        "use strict";
+
+        /* ═══════════════════════════════════════════
+           1. GEO DETECTION
+        ═══════════════════════════════════════════ */
+        const GEO_KEY = 'tranter_geo_v1';
+        const GEO_TTL = 60 * 60 * 1000; // 1 hour
+
+        async function detectCountry() {
+            // Check cache first
+            try {
+                const cached = sessionStorage.getItem(GEO_KEY);
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (Date.now() - parsed.ts < GEO_TTL) {
+                        return parsed.code;
+                    }
+                }
+            } catch (_) { }
+
+            // Fetch from API
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 4000);
+                const res = await fetch('https://ipapi.co/json/', {
+                    signal: controller.signal
+                });
+                clearTimeout(timeout);
+                const data = await res.json();
+                const code = (data.country_code || 'GLOBAL').toUpperCase();
+                sessionStorage.setItem(GEO_KEY, JSON.stringify({ code, ts: Date.now() }));
+                return code;
+            } catch (_) {
+                return 'GLOBAL'; // graceful fallback
+            }
+        }
+
+        function applyGeoUI(countryCode) {
+            const isNigeria = countryCode === 'NG';
+            const region = isNigeria ? 'nigeria' : 'global';
+
+            // Show geo banner for Nigerian users
+            if (isNigeria) {
+                const notice = document.getElementById('geo-notice');
+                const flag = document.getElementById('geo-flag');
+                const text = document.getElementById('geo-text');
+                if (notice && flag && text) {
+                    flag.textContent = '🇳🇬';
+                    text.textContent = 'Showing all Zoho solutions available in Nigeria';
+                    notice.classList.add('visible');
+                }
+            }
+
+            // Re-apply card filter based on detected region
+            applyCardFilter(region);
+        }
+
+        /* ═══════════════════════════════════════════
+           2. CARD FILTER
+        ═══════════════════════════════════════════ */
+        function applyCardFilter(region) {
+            const cards = document.querySelectorAll('#svc-container .svc-card');
+
+            cards.forEach((card, i) => {
+                const loc = card.getAttribute('data-location');
+                const isVisible = (region === 'global')
+                    ? loc === 'both'
+                    : true; // nigeria sees all
+
+                if (isVisible) {
+                    // Make visible
+                    card.classList.remove('hidden');
+
+                    // Staggered entrance animation
+                    card.style.transitionDelay = `${i * 55}ms`;
+                    card.classList.add('reveal-ready');
+
+                    // rAF ensures display:flex is applied before opacity transition
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            card.classList.add('in-view');
+                        });
+                    });
+                } else {
+                    card.classList.add('hidden');
+                    card.classList.remove('reveal-ready', 'in-view');
+                    card.style.transitionDelay = '0ms';
+                }
+            });
+        }
+
+
+
+        /* ═══════════════════════════════════════════
+           4. SCROLL REVEAL (why cards + section headers)
+        ═══════════════════════════════════════════ */
+        function initScrollReveal() {
+            const revealEls = document.querySelectorAll(
+                '.why-card, .section-hdr-meta, .why-hdr'
+            );
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+                    const el = entry.target;
+                    const index = Array.from(
+                        el.parentElement?.children || [el]
+                    ).indexOf(el);
+                    const delay = Math.min(index * 80, 320);
+
+                    setTimeout(() => {
+                        el.classList.add('in-view');
+                    }, delay);
+
+                    observer.unobserve(el);
+                });
+            }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
+
+            revealEls.forEach(el => {
+                el.classList.add('reveal-ready');
+                observer.observe(el);
+            });
+        }
+
+        /* ═══════════════════════════════════════════
+           5. STAT COUNTER ANIMATION
+        ═══════════════════════════════════════════ */
+        function initCounters() {
+            const counters = document.querySelectorAll('.stat-value[data-target]');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+
+                    const el = entry.target;
+                    const target = parseInt(el.dataset.target, 10);
+                    const suffix = el.dataset.suffix || '';
+                    let current = 0;
+                    const steps = 45;
+                    const inc = Math.ceil(target / steps);
+
+                    const tick = setInterval(() => {
+                        current = Math.min(current + inc, target);
+                        el.innerHTML = `${current}<em>${suffix}</em>`;
+                        if (current >= target) clearInterval(tick);
+                    }, 30);
+
+                    observer.unobserve(el);
+                });
+            }, { threshold: 0.5 });
+
+            counters.forEach(c => observer.observe(c));
+        }
+
+        /* ═══════════════════════════════════════════
+           6. HERO FORM SUBMISSION
+        ═══════════════════════════════════════════ */
+        function initHeroForm() {
+            const form = document.getElementById('hero-inquiry-form');
+            const btn = document.getElementById('form-submit-btn');
+            if (!form || !btn) return;
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Basic validation
+                const email = form.querySelector('[name="email"]').value;
+                const company = form.querySelector('[name="company"]').value;
+                if (!company.trim() || !email.trim()) return;
+
+                const originalText = btn.textContent;
+                btn.textContent = 'Sending…';
+                btn.disabled = true;
+
+                try {
+                    // ── Wire to your Django endpoint here ──
+                    // const res = await fetch('/api/zoho-inquiry/', {
+                    //     method: 'POST',
+                    //     headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                    //     body: new FormData(form)
+                    // });
+
+                    // Simulated delay (remove when wired up)
+                    await new Promise(r => setTimeout(r, 1400));
+
+                    btn.textContent = '✓ We'll be in touch within 24 hrs!';
+                    btn.style.background = '#059669';
+                    btn.style.borderColor = '#059669';
+
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                        btn.style.background = '';
+                        btn.style.borderColor = '';
+                        form.reset();
+                    }, 4000);
+
+                } catch (_) {
+                    btn.textContent = 'Something went wrong – try again';
+                    btn.disabled = false;
+                    setTimeout(() => { btn.textContent = originalText; }, 3000);
+                }
+            });
+        }
+
+        /* ═══════════════════════════════════════════
+           INIT – DOMContentLoaded
+        ═══════════════════════════════════════════ */
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // 1. Show global cards immediately (no animation flash)
+            applyCardFilter('global');
+
+            // 2. Init other interactions
+            initScrollReveal();
+            initCounters();
+            initHeroForm();
+
+            // 3. Async geo — auto-switches tab if NG detected
+            detectCountry().then(applyGeoUI);
+        });
+
+    })();
+</script>
+{% endblock %}

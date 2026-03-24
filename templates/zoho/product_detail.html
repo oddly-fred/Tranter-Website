@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name|default:"Zoho CRM" }} | Zoho Enterprise Solutions by Tranter IT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+    /* ── CORE & VARIABLES ────────────────────────── */
+    :root {
+        --primary: #11874B; /* Tranter Green */
+        --primary-dark: #0a6b3a;
+        --secondary: #8B151B; /* Tranter Red from Modal */
+        --dark: #0F172A;
+        --light-bg: #F8FAFC;
+        --text-main: #334155;
+        --text-muted: #64748B;
+        --border: #E2E8F0;
+        --radius: 12px;
+        --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    body { color: var(--text-main); line-height: 1.6; }
+    h1, h2, h3, h4 { color: var(--dark); font-weight: 700; line-height: 1.2; }
+
+    /* ── HERO SECTION ────────────────────────────── */
+    .hero.product-hero {
+        background: linear-gradient(135deg, #ffffff 0%, var(--light-bg) 100%);
+        padding: 80px 24px 60px;
+        border-bottom: 1px solid var(--border);
+    }
+    .hero-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+    }
+    .hero-badge {
+        display: inline-block;
+        background: rgba(17, 135, 75, 0.1);
+        color: var(--primary);
+        padding: 6px 16px;
+        border-radius: 100px;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 24px;
+    }
+    .h-headline { font-size: 46px; margin-bottom: 20px; }
+    .h-sub { font-size: 18px; color: var(--text-muted); margin-bottom: 32px; max-width: 500px; }
+    
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+        padding: 16px 32px;
+        border-radius: var(--radius);
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: var(--shadow-sm); color: white;}
+    
+    .btn-outline {
+        background: transparent;
+        color: var(--dark);
+        border: 1px solid var(--border);
+        padding: 16px 32px;
+        border-radius: var(--radius);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--dark); }
+
+    .hero-image-wrap {
+        position: relative;
+        border-radius: 16px;
+        box-shadow: var(--shadow-lg);
+        background: white;
+        padding: 12px;
+        border: 1px solid var(--border);
+    }
+
+    /* ── METRICS BAR (SOCIAL PROOF) ──────────────── */
+    .metrics-bar {
+        background: white;
+        padding: 40px 24px;
+        border-bottom: 1px solid var(--border);
+    }
+    .metrics-grid {
+        max-width: 1000px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        text-align: center;
+        flex-wrap: wrap;
+        gap: 30px;
+    }
+    .metric-item h4 { font-size: 36px; color: var(--secondary); margin-bottom: 4px; }
+    .metric-item p { font-size: 14px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+
+    /* ── PAIN VS SOLUTION (THE GAP) ──────────────── */
+    .comparison-section { padding: 80px 24px; background: var(--light-bg); }
+    .comp-grid {
+        max-width: 1000px; margin: 40px auto 0;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+    }
+    .comp-card {
+        background: white; padding: 40px; border-radius: var(--radius);
+        border: 1px solid var(--border);
+    }
+    .comp-card.bad { border-top: 4px solid #ef4444; }
+    .comp-card.good { border-top: 4px solid var(--primary); box-shadow: var(--shadow-lg); }
+    .comp-list li {
+        display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;
+    }
+    .icon-x { color: #ef4444; font-weight: bold; }
+    .icon-check { color: var(--primary); font-weight: bold; }
+
+    /* ── VALUE PROPOSITION ───────────────────────── */
+    .features-section { padding: 100px 24px; background: white; }
+    .section-header { text-align: center; max-width: 600px; margin: 0 auto 60px; }
+    .value-grid {
+        max-width: 1200px; margin: 0 auto;
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;
+    }
+    .value-item {
+        padding: 32px; background: var(--light-bg); border-radius: var(--radius);
+        transition: transform 0.3s ease; border: 1px solid transparent;
+    }
+    .value-item:hover { transform: translateY(-5px); border-color: var(--primary); background: white; box-shadow: var(--shadow-sm); }
+    .value-icon { font-size: 32px; margin-bottom: 20px; display: inline-block; }
+
+    /* ── TESTIMONIALS ────────────────────────────── */
+    .testimonial-section { padding: 80px 24px; background: var(--dark); color: white; }
+    .test-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    .test-card { background: rgba(255,255,255,0.05); padding: 32px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.1); }
+    .stars { color: #F59E0B; margin-bottom: 16px; letter-spacing: 2px; }
+
+    /* ── FAQ ACCORDION ───────────────────────────── */
+    .faq-section { padding: 100px 24px; max-width: 800px; margin: 0 auto; }
+    details { background: white; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
+    summary { padding: 20px; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: '+'; font-size: 20px; color: var(--primary); }
+    details[open] summary::after { content: '-'; }
+    .faq-content { padding: 0 20px 20px; color: var(--text-muted); }
+
+    /* ── CONVERSION FORM ─────────────────────────── */
+    .cta-section { padding: 80px 24px; background: var(--light-bg); border-top: 1px solid var(--border); }
+    .form-wrapper { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-lg); }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+    .form-control { width: 100%; padding: 14px 16px; border: 1px solid var(--border); border-radius: 8px; background: #f8fafc; font-family: inherit; transition: border 0.2s; }
+    .form-control:focus { outline: none; border-color: var(--primary); background: white; }
+    .btn-submit { width: 100%; background: var(--secondary); color: white; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .btn-submit:hover { opacity: 0.9; }
+
+    @media (max-width: 900px) {
+        .hero-container, .comp-grid { grid-template-columns: 1fr; }
+        .h-headline { font-size: 36px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero product-hero">
+    <div class="hero-container">
+        <div class="hero-content">
+            <span class="hero-badge">Tranter IT Authorized Partner</span>
+            <h1 class="h-headline">
+                {{ product.name|default:"Zoho CRM" }}<br>
+                <span style="color: var(--primary);">Let's fix that with {{ product.name|default:"Zoho" }}.</span>
+            </h1>
+            <p class="h-sub">
+                Stop relying on disjointed apps and manual data entry. We deploy and customize {{ product.name|default:"Zoho CRM" }} to perfectly fit your Nigerian business operations, ensuring your team actually loves using it.
+            </p>
+            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                <a href="#demo-form" class="btn-primary">Book Your Free Demo &rarr;</a>
+                <a href="tel:+2348183405221" class="btn-outline">Speak to an Expert</a>
+            </div>
+        </div>
+        <div class="hero-image-wrap">
+            <img src="{% static 'images/previews/' %}{{ product.slug|default:'zoho-crm' }}-ui.png" 
+                 alt="{{ product.name }} Dashboard" style="width: 100%; height: auto; border-radius: 8px;"
+                 onerror="this.src='{% static 'images/product-ui-preview.png' %}';">
+        </div>
+    </div>
+</section>
+
+<section class="metrics-bar">
+    <div class="metrics-grid">
+        <div class="metric-item">
+            <h4>300+</h4>
+            <p>Implementations</p>
+        </div>
+        <div class="metric-item">
+            <h4>45%</h4>
+            <p>Avg. Productivity Increase</p>
+        </div>
+        <div class="metric-item">
+            <h4>100%</h4>
+            <p>Local Support</p>
+        </div>
+        <div class="metric-item">
+            <h4>24/7</h4>
+            <p>Monitoring & Uptime</p>
+        </div>
+    </div>
+</section>
+
+<section class="comparison-section">
+    <div class="section-header" style="margin-bottom: 20px;">
+        <h2>Why upgrade to a unified system?</h2>
+        <p class="h-sub" style="margin: 16px auto 0;">The cost of doing nothing is higher than you think.</p>
+    </div>
+    <div class="comp-grid">
+        <div class="comp-card bad">
+            <h3 style="margin-bottom: 24px;">The Old Way</h3>
+            <ul class="comp-list">
+                <li><span class="icon-x">✗</span> <span>Data scattered across endless Excel spreadsheets.</span></li>
+                <li><span class="icon-x">✗</span> <span>Teams working in silos without visibility.</span></li>
+                <li><span class="icon-x">✗</span> <span>Manual follow-ups that cause lost revenue.</span></li>
+                <li><span class="icon-x">✗</span> <span>Paying for 5 different subscriptions that don't sync.</span></li>
+            </ul>
+        </div>
+        <div class="comp-card good">
+            <h3 style="margin-bottom: 24px;">The {{ product.name|default:"Zoho" }} Way</h3>
+            <ul class="comp-list">
+                <li><span class="icon-check">✓</span> <span>One centralized dashboard for all operations.</span></li>
+                <li><span class="icon-check">✓</span> <span>Automated workflows that trigger instantly.</span></li>
+                <li><span class="icon-check">✓</span> <span>Real-time reporting and forecasting.</span></li>
+                <li><span class="icon-check">✓</span> <span>A single, secure ecosystem tailored by Tranter IT.</span></li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="features-section">
+    <div class="section-header">
+        <span class="hero-badge" style="background: rgba(139,21,27,0.1); color: var(--secondary);">Tranter Advantage</span>
+        <h2>Built for Performance. Deployed for Results.</h2>
+    </div>
+    <div class="value-grid">
+        <div class="value-item">
+            <span class="value-icon">⚡</span>
+            <h3>Intelligent Automation</h3>
+            <p>Eliminate repetitive tasks. We configure Zoho to handle data entry and routing so your team can focus on closing deals.</p>
+        </div>
+        <div class="value-item">
+            <span class="value-icon">🇳🇬</span>
+            <h3>Localized for Nigeria</h3>
+            <p>Configured specifically for the local business landscape, including VAT tracking, local API integrations, and tailored compliance.</p>
+        </div>
+        <div class="value-item">
+            <span class="value-icon">🎓</span>
+            <h3>Guaranteed Adoption</h3>
+            <p>Software is useless if your team won't use it. We provide comprehensive on-site training to ensure 100% platform adoption.</p>
+        </div>
+    </div>
+</section>
+
+<section class="testimonial-section">
+    <div class="section-header" style="margin-bottom: 40px;">
+        <h2 style="color: white;">Trusted by Industry Leaders</h2>
+    </div>
+    <div class="test-grid">
+        <div class="test-card">
+            <div class="stars">★★★★★</div>
+            <p style="font-style: italic; margin-bottom: 20px;">"Tranter IT didn't just sell us a license; they transformed how our sales team operates. The custom API integration saved us hundreds of hours."</p>
+            <strong>Operations Director</strong><br>
+            <span style="font-size: 14px; color: #94A3B8;">Lagos Logistics Firm</span>
+        </div>
+        <div class="test-card">
+            <div class="stars">★★★★★</div>
+            <p style="font-style: italic; margin-bottom: 20px;">"We tried to implement CRM ourselves and failed. Tranter IT stepped in, audited our mess, and delivered a perfect system in 4 weeks."</p>
+            <strong>CEO</strong><br>
+            <span style="font-size: 14px; color: #94A3B8;">Fintech Startup</span>
+        </div>
+    </div>
+</section>
+
+<section class="faq-section">
+    <h2 style="text-align: center; margin-bottom: 40px;">Frequently Asked Questions</h2>
+    
+    <details>
+        <summary>Why shouldn't I just buy directly from Zoho?</summary>
+        <div class="faq-content">Buying directly gives you a blank slate. Partnering with Tranter IT gives you a fully engineered system. We handle the complex setup, data migration, legacy system integration, and staff training, ensuring you get immediate ROI.</div>
+    </details>
+    <details>
+        <summary>How long does implementation take?</summary>
+        <div class="faq-content">Depending on the complexity and the number of custom workflows required, a standard implementation takes between 2 to 6 weeks. We provide a strict timeline during our initial audit.</div>
+    </details>
+    <details>
+        <summary>Do you provide ongoing support?</summary>
+        <div class="faq-content">Absolutely. We offer dedicated SLAs (Service Level Agreements) to ensure your system evolves with your business, providing rapid troubleshooting and ongoing workflow optimization.</div>
+    </details>
+</section>
+
+<section class="cta-section" id="demo-form">
+    <div class="section-header" style="margin-bottom: 30px;">
+        <h2>Book Your Demo</h2>
+        <p>Tell us about your needs — we'll get back fast.</p>
+    </div>
+    
+    <div class="form-wrapper">
+        <form action="{% url 'contact' %}" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Your Name" required>
+            </div>
+            <div class="form-group">
+                <input type="email" class="form-control" placeholder="Email Address" required>
+            </div>
+            <div class="form-group">
+                <input type="tel" class="form-control" placeholder="WhatsApp Number" required>
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Company Name" required>
+            </div>
+            <div class="form-group">
+                <select class="form-control" required style="appearance: auto;">
+                    <option value="" disabled selected>Select Service</option>
+                    <option value="crm">Zoho CRM Setup</option>
+                    <option value="books">Zoho Books Integration</option>
+                    <option value="audit">Existing System Audit</option>
+                    <option value="other">Other Zoho Products</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit">Request Demo &rarr;</button>
+        </form>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+</script>
+{% endblock %}
+
+

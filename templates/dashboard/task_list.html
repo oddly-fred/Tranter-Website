@@ -2,60 +2,265 @@
 {% block page_title %}Tasks{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
-    <div style="display: flex; gap: 0.5rem;">
-        <a href="?status=" class="btn btn-secondary btn-sm {% if not request.GET.status %}btn-primary{% endif %}">All</a>
-        <a href="?status=pending" class="btn btn-secondary btn-sm">Pending</a>
-        <a href="?status=in_progress" class="btn btn-secondary btn-sm">In Progress</a>
-        <a href="?status=done" class="btn btn-secondary btn-sm">Done</a>
+<style>
+    .tasks-hero {
+        background: linear-gradient(135deg, #048042 0%, #036835 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .tasks-hero h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 0.5rem;
+        background: rgba(255,255,255,0.15);
+        padding: 0.375rem;
+        border-radius: 999px;
+    }
+
+    .filter-tab {
+        padding: 0.5rem 1rem;
+        border-radius: 999px;
+        border: none;
+        background: transparent;
+        color: rgba(255,255,255,0.8);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .filter-tab:hover {
+        color: white;
+        background: rgba(255,255,255,0.15);
+    }
+
+    .filter-tab.active {
+        background: white;
+        color: var(--primary);
+    }
+
+    .tasks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 1rem;
+    }
+
+    .task-card-modern {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 1.25rem;
+        transition: all 0.2s;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .task-card-modern:hover {
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
+    }
+
+    .task-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 0.75rem;
+    }
+
+    .task-card-title {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--text);
+        line-height: 1.4;
+        flex: 1;
+    }
+
+    .priority-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        margin-top: 0.35rem;
+    }
+
+    .priority-dot.low { background: #6b7280; }
+    .priority-dot.medium { background: #3b82f6; }
+    .priority-dot.high { background: #f59e0b; }
+    .priority-dot.urgent { background: #ef4444; }
+
+    .task-card-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8125rem;
+        color: var(--text-light);
+        flex-wrap: wrap;
+    }
+
+    .task-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .task-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.625rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-in_progress { background: #dbeafe; color: #1e40af; }
+    .badge-review { background: #e9d5ff; color: #6b21a8; }
+    .badge-done { background: #d1fae5; color: #065f46; }
+
+    .badge-low { background: #f1f5f9; color: #475569; }
+    .badge-medium { background: #dbeafe; color: #1e40af; }
+    .badge-high { background: #fed7aa; color: #c2410c; }
+    .badge-urgent { background: #fee2e2; color: #b91c1c; }
+
+    .task-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+
+    .action-btn:hover {
+        background: var(--bg);
+        border-color: var(--primary);
+    }
+
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-light);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
+        .tasks-grid {
+            grid-template-columns: 1fr;
+        }
+        .tasks-hero {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+        }
+        .filter-tabs {
+            justify-content: center;
+        }
+    }
+</style>
+
+<!-- Hero Section -->
+<div class="tasks-hero">
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 1rem;">
+        <h1>✅ Tasks</h1>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <div class="filter-tabs">
+                <a href="?status=" class="filter-tab {% if not request.GET.status %}active{% endif %}">All</a>
+                <a href="?status=pending" class="filter-tab {% if request.GET.status == 'pending' %}active{% endif %}">Pending</a>
+                <a href="?status=in_progress" class="filter-tab {% if request.GET.status == 'in_progress' %}active{% endif %}">In Progress</a>
+                <a href="?status=done" class="filter-tab {% if request.GET.status == 'done' %}active{% endif %}">Done</a>
+            </div>
+            <button class="btn btn-primary" style="background: white; color: var(--primary);" onclick="document.getElementById('task-modal').classList.add('active')">
+                + New Task
+            </button>
+        </div>
     </div>
-    <button class="btn btn-primary" onclick="document.getElementById('task-modal').classList.add('active')">+ New Task</button>
 </div>
 
-<div class="card">
-    <div id="task-items">
+<!-- Tasks Grid -->
+<div class="tasks-grid" id="task-items">
     {% for task in tasks %}
-    <div class="task-card" style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <div class="task-title">
-                <a href="{% url 'dashboard:task_detail' task.pk %}" style="text-decoration: none; color: inherit;">{{ task.title }}</a>
-                {% if task.ai_generated %}<span style="font-size: 0.75rem;">🤖</span>{% endif %}
-            </div>
-            <div class="task-meta">
-                <span class="badge badge-{{ task.priority }}">{{ task.get_priority_display }}</span>
-                {% if task.due_date %}
-                <span>Due: {{ task.due_date|date:"M d" }}</span>
-                {% endif %}
-                {% if task.assigned_to %}
-                <span>→ {{ task.assigned_to.full_name }}</span>
-                {% endif %}
-            </div>
+    <div class="task-card-modern" onclick="window.location.href='{% url 'dashboard:task_detail' task.pk %}'">
+        <div class="task-card-header">
+            <div class="task-card-title">{{ task.title }}</div>
+            <div class="priority-dot {{ task.priority }}"></div>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
-            <select class="form-select" style="width: auto; margin: 0; padding: 0.25rem 0.5rem;"
-                    hx-post="{% url 'dashboard:task_status' task.pk %}"
-                    hx-trigger="change"
-                    hx-swap="outerHTML"
-                    hx-target="closest .task-card"
-                    name="status">
-                {% for value, label in task.STATUS_CHOICES %}
-                <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-            <button class="btn btn-secondary btn-sm" 
-                    hx-post="{% url 'dashboard:task_delete' task.pk %}"
-                    hx-confirm="Delete this task?"
-                    hx-swap="outerHTML swap:0.5s"
-                    hx-target="closest .task-card">🗑️</button>
+
+        <div class="task-card-meta">
+            <span class="badge badge-{{ task.status }}">{{ task.get_status_display }}</span>
+            <span class="badge badge-{{ task.priority }}">{{ task.get_priority_display }}</span>
+            {% if task.due_date %}
+            <span class="task-meta-item">📅 {{ task.due_date|date:"M d" }}</span>
+            {% endif %}
+        </div>
+
+        <div class="task-card-footer">
+            <div style="font-size: 0.8125rem; color: var(--text-light);">
+                {% if task.assigned_to %}
+                👤 {{ task.assigned_to.profile.full_name|default:task.assigned_to.username }}
+                {% else %}
+                Unassigned
+                {% endif %}
+            </div>
+            <div class="task-actions" onclick="event.stopPropagation()">
+                <button class="action-btn" title="Delete"
+                        hx-post="{% url 'dashboard:task_delete' task.pk %}"
+                        hx-confirm="Delete this task?"
+                        hx-swap="outerHTML swap:0.5s"
+                        hx-target="closest .task-card-modern">🗑️</button>
+            </div>
         </div>
     </div>
     {% empty %}
-    <p style="text-align: center; color: var(--text-light); padding: 2rem;">No tasks found. Create one!</p>
-    {% endfor %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🎉</div>
+        <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--text);">No tasks found</h3>
+        <p>Create your first task to get started</p>
+        <button class="btn btn-primary" style="margin-top: 1rem;" onclick="document.getElementById('task-modal').classList.add('active')">+ New Task</button>
     </div>
+    {% endfor %}
 </div>
 
-<!-- Robust Task Modal -->
+<!-- Create Task Modal -->
 <div class="modal" id="task-modal">
     <div class="modal-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -63,14 +268,10 @@
             <button class="btn btn-secondary btn-sm" onclick="document.getElementById('task-modal').classList.remove('active')">✕</button>
         </div>
 
-        <!-- HTMX target for form rendering -->
         <div id="modal-form-container">
-            <form method="POST" action="{% url 'dashboard:task_create' %}" 
-                  hx-post="{% url 'dashboard:task_create' %}" 
-                  hx-target="#modal-form-container" 
-                  hx-swap="innerHTML">
+            <form method="POST" action="{% url 'dashboard:task_create' %}" id="task-create-form">
                 {% csrf_token %}
-                
+
                 {% for field in form %}
                 <div style="margin-bottom: 1rem;">
                     <label style="display: block; font-weight: 500; margin-bottom: 0.25rem; font-size: 0.875rem;">{{ field.label }}</label>
@@ -91,10 +292,35 @@
 </div>
 
 <script>
-// HTMX event listener: reload page when task is successfully created (204 response)
-document.body.addEventListener('taskCreated', function() {
-    document.getElementById('task-modal').classList.remove('active');
-    location.reload(); // Refresh screen to show new task
+document.getElementById('task-create-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => {
+        if (response.ok || response.status === 204) {
+            document.getElementById('task-modal').classList.remove('active');
+            location.reload();
+        } else {
+            return response.text();
+        }
+    })
+    .then(html => {
+        if (html) {
+            document.getElementById('modal-form-container').innerHTML = html;
+        }
+    })
+    .catch(error => {
+        alert('Error creating task. Please try again.');
+        console.error('Error:', error);
+    });
 });
 </script>
 {% endblock %}

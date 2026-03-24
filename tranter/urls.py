@@ -17,7 +17,6 @@ Including another URLconf
 from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import RedirectView
 
 
 urlpatterns = [
@@ -25,6 +24,6 @@ urlpatterns = [
     path('', include('core.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('integrations/', include('integrations.urls')),
-    path('', include('geo_content.urls')),  # Geo content module (region switcher)
-    path('', RedirectView.as_view(url='/dashboard/', permanent=False)),
+    path('zoho/', include('zoho.urls')),
+    path('', include('geo_content.urls')),  # Geo content module (region switcher) - kept at end to not override core routes
 ]

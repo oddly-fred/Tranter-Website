@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'geo_content',
     'rest_framework',
     'django_filters',
+    'zoho',
 ]
 
 

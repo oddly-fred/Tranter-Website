@@ -242,7 +242,7 @@
                         </div>
                     </div>
                     <div>
-                        {% if quiz.user_has_attempted request.user %}
+                        {% if quiz.already_attempted %}
                         <span class="completed-badge" style="font-size: 0.8125rem; padding: 0.375rem 0.75rem;">
                             ✅ Done
                         </span>

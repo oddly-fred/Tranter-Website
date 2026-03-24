@@ -202,7 +202,7 @@
 /* Headline */
 .h-headline {
   font-family: var(--f-display);
-  font-size: clamp(44px, 5.6vw, 76px);
+  font-size: clamp(30px, 5.6vw, 76px);
   font-weight: 800; line-height: 1.03;
   letter-spacing: -2.5px; color: #fff;
   margin-bottom: 20px;

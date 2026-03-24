@@ -192,22 +192,3 @@ def get_current_region(request):
         'session_override': session_region is not None,
         'session_region': session_region,
     })
-
-
-# Example homepage view using geo content
-def homepage(request):
-    """
-    Example homepage view demonstrating geo content usage.
-    """
-    context = {
-        # Load specific content blocks
-        'hero': get_content('hero_section', request),
-        'features': get_content('features_section', request),
-        'pricing': get_content('pricing_banner', request),
-        'cta': get_content('cta_section', request),
-    }
-
-    return TemplateView.as_view(
-        template_name='geo_content/home.html',
-        extra_context=context
-    )(request)

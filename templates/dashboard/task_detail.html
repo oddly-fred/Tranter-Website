@@ -1,0 +1,219 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}{{ task.title }}{% endblock %}
+
+{% block content %}
+<style>
+    .task-detail-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-light);
+        text-decoration: none;
+        font-size: 0.9375rem;
+        margin-bottom: 1.5rem;
+        transition: color 0.2s;
+    }
+
+    .back-link:hover {
+        color: var(--primary);
+    }
+
+    .task-header-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .task-header-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary);
+    }
+
+    .task-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 1rem;
+    }
+
+    .task-badges {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+
+    .task-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background: var(--bg);
+        border-radius: 12px;
+    }
+
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .meta-label {
+        font-size: 0.8125rem;
+        color: var(--text-light);
+        font-weight: 500;
+    }
+
+    .meta-value {
+        font-size: 1rem;
+        color: var(--text);
+        font-weight: 600;
+    }
+
+    .task-description-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .task-section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .task-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .status-update-form {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .status-select {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+        font-size: 0.9375rem;
+    }
+
+    @media (max-width: 640px) {
+        .task-header-card {
+            padding: 1.5rem;
+        }
+        .task-title {
+            font-size: 1.5rem;
+        }
+        .task-meta-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+</style>
+
+<div class="task-detail-container">
+    <!-- Back Link -->
+    <a href="{% url 'dashboard:task_list' %}" class="back-link">
+        ← Back to Tasks
+    </a>
+
+    <!-- Task Header -->
+    <div class="task-header-card">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+            <div class="task-title">{{ task.title }}</div>
+            <div class="task-priority-dot {{ task.priority }}" style="width: 16px; height: 16px; margin-top: 0.5rem;"></div>
+        </div>
+
+        <div class="task-badges">
+            <span class="badge badge-{{ task.status }}">{{ task.get_status_display }}</span>
+            <span class="badge badge-{{ task.priority }}">{{ task.get_priority_display }}</span>
+            {% if task.ai_generated %}<span style="background: #e9d5ff; color: #6b21a8; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 500;">🤖 AI Generated</span>{% endif %}
+        </div>
+
+        <div class="task-meta-grid">
+            <div class="meta-item">
+                <span class="meta-label">Status</span>
+                <span class="meta-value">{{ task.get_status_display }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Priority</span>
+                <span class="meta-value">{{ task.get_priority_display }}</span>
+            </div>
+            {% if task.assigned_to %}
+            <div class="meta-item">
+                <span class="meta-label">Assigned To</span>
+                <span class="meta-value">{{ task.assigned_to.profile.full_name }}</span>
+            </div>
+            {% endif %}
+            {% if task.due_date %}
+            <div class="meta-item">
+                <span class="meta-label">Due Date</span>
+                <span class="meta-value">{{ task.due_date|date:"M d, Y" }}</span>
+            </div>
+            {% endif %}
+            {% if task.project %}
+            <div class="meta-item">
+                <span class="meta-label">Project</span>
+                <span class="meta-value">{{ task.project.name }}</span>
+            </div>
+            {% endif %}
+            <div class="meta-item">
+                <span class="meta-label">Created</span>
+                <span class="meta-value">{{ task.created_at|date:"M d, Y" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Description -->
+    {% if task.description %}
+    <div class="task-description-card">
+        <div class="task-section-title">📝 Description</div>
+        <p style="color: var(--text); line-height: 1.7;">{{ task.description|linebreaks }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="task-description-card">
+        <div class="task-section-title">⚡ Actions</div>
+        <div class="task-actions">
+            <!-- Status Update -->
+            <form method="POST" action="{% url 'dashboard:task_status' task.pk %}" class="status-update-form">
+                {% csrf_token %}
+                <select name="status" class="status-select">
+                    {% for value, label in task.STATUS_CHOICES %}
+                    <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm">Update Status</button>
+            </form>
+
+            <a href="{% url 'dashboard:task_list' %}" class="btn btn-secondary">← Back to List</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

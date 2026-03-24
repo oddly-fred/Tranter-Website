@@ -57,3 +57,41 @@ function toggleDrawerAcc(btn) {
     btn.classList.add('open');
   }
 }
+
+
+function submitDemo() {
+    document.getElementById("step3").classList.remove("active");
+    document.getElementById("success").classList.add("active");
+
+    if (REGION_CONTENT.is_nigeria) {
+        setTimeout(() => {
+            window.open(REGION_CONTENT.whatsapp_link);
+        }, 1500);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const phoneInput = document.getElementById("d_phone");
+    if(phoneInput) phoneInput.placeholder = REGION_CONTENT.is_nigeria ? "+234 800 000 0000" : "+1 000 000 0000";
+});
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  const mega = document.querySelector(".has-mega");
+  const trigger = mega?.querySelector(".mega-trigger");
+
+  if (!mega || !trigger) return;
+
+  trigger.addEventListener("click", function (e) {
+    e.preventDefault();
+    mega.classList.toggle("mega-open");
+  });
+
+  // Close when clicking outside
+  document.addEventListener("click", function (e) {
+    if (!mega.contains(e.target)) {
+      mega.classList.remove("mega-open");
+    }
+  });
+});

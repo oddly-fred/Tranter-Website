@@ -3,7 +3,9 @@
 {% load geo_extras %}
 
 {% block title %}Home{% endblock %}
-{% block meta_description %}{% if is_nigeria %}Tranter Nigeria — Powering Intelligent Business Infrastructure. ISO Certified Enterprise Technology Partner for African markets.{% else %}Tranter Global — Powering Intelligent Business Infrastructure across international markets. ISO Certified Enterprise Technology Partner.{% endif %}{% endblock %}
+{% block meta_description %}{% if is_nigeria %}Tranter Nigeria — Powering Intelligent Business Infrastructure. ISO
+Certified Enterprise Technology Partner for African markets.{% else %}Tranter Global — Powering Intelligent Business
+Infrastructure across international markets. ISO Certified Enterprise Technology Partner.{% endif %}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
@@ -18,30 +20,30 @@
   {# Background slides — video first, then 2 images #}
   <div class="hero-slides" id="heroSlides">
     {% for slide in hero_slides %}
-      <div class="slide {% if forloop.first %}active{% endif %}">
-        {% if slide.media_type == 'video' %}
-          <video autoplay muted loop playsinline>
-            <source src="{{ slide.media_file.url }}" type="video/mp4">
-          </video>
-        {% else %}
-          <img src="{{ slide.media_file.url }}"
-               alt="{{ slide.alt_text|default:'Tranter' }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
-        {% endif %}
-      </div>
+    <div class="slide {% if forloop.first %}active{% endif %}">
+      {% if slide.media_type == 'video' %}
+      <video autoplay muted loop playsinline>
+        <source src="{{ slide.media_file.url }}" type="video/mp4">
+      </video>
+      {% else %}
+      <img src="{{ slide.media_file.url }}" alt="{{ slide.alt_text|default:'Tranter' }}"
+        loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+      {% endif %}
+    </div>
     {% empty %}
-      {# Fallback slides until media is uploaded in admin #}
-      <div class="slide active">
-        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&q=80"
-             alt="Enterprise technology" loading="eager">
-      </div>
-      <div class="slide">
-        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80"
-             alt="Digital infrastructure" loading="lazy">
-      </div>
-      <div class="slide">
-        <img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1920&q=80"
-             alt="Global technology" loading="lazy">
-      </div>
+    {# Fallback slides until media is uploaded in admin #}
+    <div class="slide active">
+      <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&q=80" alt="Enterprise technology"
+        loading="eager">
+    </div>
+    <div class="slide">
+      <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80" alt="Digital infrastructure"
+        loading="lazy">
+    </div>
+    <div class="slide">
+      <img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1920&q=80" alt="Global technology"
+        loading="lazy">
+    </div>
     {% endfor %}
   </div>
 
@@ -72,21 +74,21 @@
         <div class="slide-copy active">
           <h1 class="h-headline">
             {% if hero_content.text %}
-              {{ hero_content.text|safe }}
+            {{ hero_content.text|safe }}
             {% else %}
-              Powering<br>
-              <span class="t-green">Intelligent</span><br>
-              <span class="t-faint">Infrastructure.{% if is_nigeria %} 🇳🇬{% endif %}</span>
+            Powering<br>
+            <span class="t-green">Intelligent</span><br>
+            <span class="t-faint">Infrastructure.{% if is_nigeria %} 🇳🇬{% endif %}</span>
             {% endif %}
           </h1>
           <p class="h-sub">
             {% if is_nigeria %}
-              Designing resilient IT systems for Nigerian enterprises — built for scale,
-              security, and the unique demands of Africa's fastest-growing markets.
+            Designing resilient IT systems for Nigerian enterprises — built for scale,
+            security, and the unique demands of Africa's fastest-growing markets.
             {% else %}
-              Designing resilient IT systems that scale across markets,
-              industries and borders — built for enterprises that
-              can&rsquo;t afford downtime.
+            Designing resilient IT systems that scale across markets,
+            industries and borders — built for enterprises that
+            can&rsquo;t afford downtime.
             {% endif %}
           </p>
         </div>
@@ -99,11 +101,11 @@
           </h1>
           <p class="h-sub">
             {% if is_nigeria %}
-              From strategy to execution — we position your brand
-              for measurable growth in Nigeria's competitive digital landscape.
+            From strategy to execution — we position your brand
+            for measurable growth in Nigeria's competitive digital landscape.
             {% else %}
-              From strategy to execution — we position your brand
-              for measurable growth in the markets that matter most.
+            From strategy to execution — we position your brand
+            for measurable growth in the markets that matter most.
             {% endif %}
           </p>
         </div>
@@ -116,11 +118,11 @@
           </h1>
           <p class="h-sub">
             {% if is_nigeria %}
-              Delivering secure, scalable systems for Nigerian enterprises
-              with global standards and local expertise.
+            Delivering secure, scalable systems for Nigerian enterprises
+            with global standards and local expertise.
             {% else %}
-              Delivering secure, scalable systems for enterprises
-              across regions, time zones, and regulatory environments.
+            Delivering secure, scalable systems for enterprises
+            across regions, time zones, and regulatory environments.
             {% endif %}
           </p>
         </div>
@@ -128,70 +130,70 @@
 
       {# CTA buttons #}
       <div class="h-actions">
-        <a href="{% url 'contact' %}"  class="btn-hero-g">Talk to an Expert &rarr;</a>
+        <a href="{% url 'contact' %}" class="btn-hero-g">Talk to an Expert &rarr;</a>
         <a href="{% url 'what_we_do' %}" class="btn-hero-r">Explore Services</a>
       </div>
 
       {# Slide navigation dots #}
       <div class="slide-dots" id="slideDots">
         <button class="sdot active" data-i="0" aria-label="Slide 1"></button>
-        <button class="sdot"        data-i="1" aria-label="Slide 2"></button>
-        <button class="sdot"        data-i="2" aria-label="Slide 3"></button>
+        <button class="sdot" data-i="1" aria-label="Slide 2"></button>
+        <button class="sdot" data-i="2" aria-label="Slide 3"></button>
       </div>
 
     </div>{# /hero-left #}
 
-  
-        {# DJANGO FORM — remove this block when switching to Zoho iframe #}
-        <form method="POST" class="cf" novalidate>
-          {% csrf_token %}
-          <div class="cf-row">
-            <div class="cf-field">
-              <label>First Name</label>
-              <input type="text" name="first_name" placeholder="John" required>
-            </div>
-            <div class="cf-field">
-              <label>Last Name</label>
-              <input type="text" name="last_name" placeholder="Doe" required>
-            </div>
-          </div>
-          <div class="cf-field">
-            <label>Work Email</label>
-            <input type="email" name="email" placeholder="john@company.com" required>
-          </div>
-          <div class="cf-field">
-            <label>Organisation</label>
-            <input type="text" name="organisation" placeholder="Company Name" required>
-          </div>
-          <div class="cf-field">
-            <label>Service Interest</label>
-            <div class="cf-select-wrap">
-              <select name="service">
-                <option value="">Select a service&hellip;</option>
-                <option value="it-support">IT Support Services</option>
-                <option value="smart-solutions">Smart Solutions</option>
-                <option value="cybersecurity">Cybersecurity</option>
-                <option value="manage-engine">ManageEngine</option>
-                <option value="zoho">Zoho Solutions</option>
-                <option value="digital-marketing">Digital Marketing &amp; Brand</option>
-                <option value="bpo">Business Process Outsourcing</option>
-                <option value="website">Website Development</option>
-                <option value="hr">HR Support Services</option>
-              </select>
-              <svg class="sel-arrow" width="12" height="7" viewBox="0 0 12 7" fill="none">
-                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-            </div>
-          </div>
-          {% if consultation_success %}
-            <div class="cf-success">&#x2713; Received! We&rsquo;ll be in touch within 24 hours.</div>
-          {% endif %}
-          <button type="submit" class="cf-submit">Request Free Consultation &rarr;</button>
-          <p class="fc-note">&#x1F512; No spam. <strong>Response within 24 hours.</strong></p>
-        </form>
 
+    {# DJANGO FORM — remove this block when switching to Zoho iframe #}
+    <form method="POST" class="cf" novalidate>
+      {% csrf_token %}
+      <div class="cf-row">
+        <div class="cf-field">
+          <label>First Name</label>
+          <input type="text" name="first_name" placeholder="John" required>
+        </div>
+        <div class="cf-field">
+          <label>Last Name</label>
+          <input type="text" name="last_name" placeholder="Doe" required>
+        </div>
       </div>
-    </div>{# /hero-right #}
+      <div class="cf-field">
+        <label>Work Email</label>
+        <input type="email" name="email" placeholder="john@company.com" required>
+      </div>
+      <div class="cf-field">
+        <label>Organisation</label>
+        <input type="text" name="organisation" placeholder="Company Name" required>
+      </div>
+      <div class="cf-field">
+        <label>Service Interest</label>
+        <div class="cf-select-wrap">
+          <select name="service">
+            <option value="">Select a service&hellip;</option>
+            <option value="it-support">IT Support Services</option>
+            <option value="smart-solutions">Smart Solutions</option>
+            <option value="cybersecurity">Cybersecurity</option>
+            <option value="manage-engine">ManageEngine</option>
+            <option value="zoho">Zoho Solutions</option>
+            <option value="digital-marketing">Digital Marketing &amp; Brand</option>
+            <option value="bpo">Business Process Outsourcing</option>
+            <option value="website">Website Development</option>
+            <option value="hr">HR Support Services</option>
+          </select>
+          <svg class="sel-arrow" width="12" height="7" viewBox="0 0 12 7" fill="none">
+            <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      {% if consultation_success %}
+      <div class="cf-success">&#x2713; Received! We&rsquo;ll be in touch within 24 hours.</div>
+      {% endif %}
+      <button type="submit" class="cf-submit">Request Free Consultation &rarr;</button>
+      <p class="fc-note">&#x1F512; No spam. <strong>Response within 24 hours.</strong></p>
+    </form>
+
+  </div>
+  </div>{# /hero-right #}
 
   </div>{# /hero-body #}
 
@@ -210,39 +212,39 @@
   <div class="trust-track-wrap">
     <div class="trust-track" id="trustTrack">
       {% for client in clients %}
-        <span class="trust-name">{{ client }}</span>
+      <span class="trust-name">{{ client }}</span>
       {% empty %}
-        <span class="trust-name">GTBank</span>
-        <span class="trust-name">Zenith Bank</span>
-        <span class="trust-name">FCMB</span>
-        <span class="trust-name">Air Peace</span>
-        <span class="trust-name">FBNQuest</span>
-        <span class="trust-name">Stanbic IBTC</span>
-        <span class="trust-name">DBN</span>
-        <span class="trust-name">Bank of Industry</span>
-        <span class="trust-name">Sterling Bank</span>
-        <span class="trust-name">UBA</span>
-        <span class="trust-name">Fidelity Bank</span>
-        <span class="trust-name">Union Bank</span>
-        <span class="trust-name">Wema Bank</span>
-        <span class="trust-name">Heritage Bank</span>
-        <span class="trust-name">Keystone Bank</span>
-        {# Duplicate for seamless CSS loop #}
-        <span class="trust-name">GTBank</span>
-        <span class="trust-name">Zenith Bank</span>
-        <span class="trust-name">FCMB</span>
-        <span class="trust-name">Air Peace</span>
-        <span class="trust-name">FBNQuest</span>
-        <span class="trust-name">Stanbic IBTC</span>
-        <span class="trust-name">DBN</span>
-        <span class="trust-name">Bank of Industry</span>
-        <span class="trust-name">Sterling Bank</span>
-        <span class="trust-name">UBA</span>
-        <span class="trust-name">Fidelity Bank</span>
-        <span class="trust-name">Union Bank</span>
-        <span class="trust-name">Wema Bank</span>
-        <span class="trust-name">Heritage Bank</span>
-        <span class="trust-name">Keystone Bank</span>
+      <span class="trust-name">GTBank</span>
+      <span class="trust-name">Zenith Bank</span>
+      <span class="trust-name">FCMB</span>
+      <span class="trust-name">Air Peace</span>
+      <span class="trust-name">FBNQuest</span>
+      <span class="trust-name">Stanbic IBTC</span>
+      <span class="trust-name">DBN</span>
+      <span class="trust-name">Bank of Industry</span>
+      <span class="trust-name">Sterling Bank</span>
+      <span class="trust-name">UBA</span>
+      <span class="trust-name">Fidelity Bank</span>
+      <span class="trust-name">Union Bank</span>
+      <span class="trust-name">Wema Bank</span>
+      <span class="trust-name">Heritage Bank</span>
+      <span class="trust-name">Keystone Bank</span>
+      {# Duplicate for seamless CSS loop #}
+      <span class="trust-name">GTBank</span>
+      <span class="trust-name">Zenith Bank</span>
+      <span class="trust-name">FCMB</span>
+      <span class="trust-name">Air Peace</span>
+      <span class="trust-name">FBNQuest</span>
+      <span class="trust-name">Stanbic IBTC</span>
+      <span class="trust-name">DBN</span>
+      <span class="trust-name">Bank of Industry</span>
+      <span class="trust-name">Sterling Bank</span>
+      <span class="trust-name">UBA</span>
+      <span class="trust-name">Fidelity Bank</span>
+      <span class="trust-name">Union Bank</span>
+      <span class="trust-name">Wema Bank</span>
+      <span class="trust-name">Heritage Bank</span>
+      <span class="trust-name">Keystone Bank</span>
       {% endfor %}
     </div>
   </div>
@@ -293,85 +295,93 @@
 
   <div class="svc-grid">
     {% for svc in what_we_do %}
-      <a href="{% url 'what_we_do' %}"
-         class="svc-card {% if svc.accent == 'red' %}red{% endif %}">
-        <span class="svc-num">{{ forloop.counter|stringformat:"02d" }}</span>
-        <div class="svc-icon-wrap">{{ svc.icon }}</div>
-        <h3 class="svc-name">{{ svc.name }}</h3>
-        <p class="svc-desc">
-          {% if svc.short_description %}
-            {{ svc.short_description }}
-          {% else %}
-            Delivering enterprise-grade {{ svc.name|lower }} solutions
-            tailored to your operational environment.
-          {% endif %}
-        </p>
-        <span class="svc-arrow">Explore &rarr;</span>
-      </a>
+    <a href="{% url 'what_we_do' %}" class="svc-card {% if svc.accent == 'red' %}red{% endif %}">
+      <span class="svc-num">{{ forloop.counter|stringformat:"02d" }}</span>
+      <div class="svc-icon-wrap">{{ svc.icon }}</div>
+      <h3 class="svc-name">{{ svc.name }}</h3>
+      <p class="svc-desc">
+        {% if svc.short_description %}
+        {{ svc.short_description }}
+        {% else %}
+        Delivering enterprise-grade {{ svc.name|lower }} solutions
+        tailored to your operational environment.
+        {% endif %}
+      </p>
+      <span class="svc-arrow">Explore &rarr;</span>
+    </a>
     {% empty %}
-      <a href="{% url 'what_we_do' %}" class="svc-card">
-        <span class="svc-num">01</span>
-        <div class="svc-icon-wrap">&#x26A1;</div>
-        <h3 class="svc-name">IT Support Services</h3>
-        <p class="svc-desc">Building and managing the digital backbone of modern organizations — reliable infrastructure across geographies.</p>
-        <span class="svc-arrow">Explore &rarr;</span>
-      </a>
-      <a href="{% url 'what_we_do' %}" class="svc-card">
-        <span class="svc-num">02</span>
-        <div class="svc-icon-wrap">&#x1F916;</div>
-        <h3 class="svc-name">Smart Solutions</h3>
-        <p class="svc-desc">Shifting organizations from manual to intelligent, technology-enabled workflows that scale seamlessly.</p>
-        <span class="svc-arrow">Explore &rarr;</span>
-      </a>
-      <a href="{% url 'what_we_do' %}" class="svc-card red">
-        <span class="svc-num">03</span>
-        <div class="svc-icon-wrap">&#x1F6E1;&#xFE0F;</div>
-        <h3 class="svc-name">Cybersecurity</h3>
-        <p class="svc-desc">Embedding security into business operations as strategic infrastructure — not an afterthought.</p>
-        <span class="svc-arrow">Explore &rarr;</span>
-      </a>
-      <a href="{% url 'what_we_do' %}" class="svc-card">
-        <span class="svc-num">04</span>
-        <div class="svc-icon-wrap">&#x1F4CA;</div>
-        <h3 class="svc-name">ManageEngine</h3>
-        <p class="svc-desc">Certified partner delivering unified IT management across networks, security, and operations.</p>
-        <span class="svc-arrow">Explore &rarr;</span>
-      </a>
-      <a href="{% url 'what_we_do' %}" class="svc-card red">
-        <span class="svc-num">05</span>
-        <div class="svc-icon-wrap">&#x2601;&#xFE0F;</div>
-        <h3 class="svc-name">Zoho Solutions</h3>
-        <p class="svc-desc">Full-suite Zoho implementation — CRM, ERP, HR, and custom automation for enterprise workflows.</p>
-        <span class="svc-arrow">Explore &rarr;</span>
-      </a>
-      <a href="{% url 'what_we_do' %}" class="svc-card">
-        <span class="svc-num">06</span>
-        <div class="svc-icon-wrap">&#x1F310;</div>
-        <h3 class="svc-name">Digital Marketing &amp; Brand</h3>
-        <p class="svc-desc">Enterprise-grade digital presence aligned to measurable business growth across channels and markets.</p>
-        <span class="svc-arrow">Explore &rarr;</span>
-      </a>
-      <a href="{% url 'what_we_do' %}" class="svc-card red">
-        <span class="svc-num">07</span>
-        <div class="svc-icon-wrap">&#x1F465;</div>
-        <h3 class="svc-name">HR Support Services</h3>
-        <p class="svc-desc">Optimizing workforce operations across distributed environments with technology-enabled HR systems.</p>
-        <span class="svc-arrow">Explore &rarr;</span>
-      </a>
-      <a href="{% url 'what_we_do' %}" class="svc-card">
-        <span class="svc-num">08</span>
-        <div class="svc-icon-wrap">&#x2699;&#xFE0F;</div>
-        <h3 class="svc-name">Business Process Outsourcing</h3>
-        <p class="svc-desc">Turning non-core functions into scalable, technology-enabled systems with measurable SLA performance.</p>
-        <span class="svc-arrow">Explore &rarr;</span>
-      </a>
-      <a href="{% url 'what_we_do' %}" class="svc-card red">
-        <span class="svc-num">09</span>
-        <div class="svc-icon-wrap">&#x1F4BB;</div>
-        <h3 class="svc-name">Website Development</h3>
-        <p class="svc-desc">Positioning digital assets as operational infrastructure — performance-driven and conversion-optimized.</p>
-        <span class="svc-arrow">Explore &rarr;</span>
-      </a>
+    <a href="{% url 'what_we_do' %}" class="svc-card">
+      <span class="svc-num">01</span>
+      <div class="svc-icon-wrap">&#x26A1;</div>
+      <h3 class="svc-name">IT Support Services</h3>
+      <p class="svc-desc">Building and managing the digital backbone of modern organizations — reliable infrastructure
+        across geographies.</p>
+      <span class="svc-arrow">Explore &rarr;</span>
+    </a>
+    <a href="{% url 'what_we_do' %}" class="svc-card">
+      <span class="svc-num">02</span>
+      <div class="svc-icon-wrap">&#x1F916;</div>
+      <h3 class="svc-name">Smart Solutions</h3>
+      <p class="svc-desc">Shifting organizations from manual to intelligent, technology-enabled workflows that scale
+        seamlessly.</p>
+      <span class="svc-arrow">Explore &rarr;</span>
+    </a>
+    <a href="{% url 'what_we_do' %}" class="svc-card red">
+      <span class="svc-num">03</span>
+      <div class="svc-icon-wrap">&#x1F6E1;&#xFE0F;</div>
+      <h3 class="svc-name">Cybersecurity</h3>
+      <p class="svc-desc">Embedding security into business operations as strategic infrastructure — not an afterthought.
+      </p>
+      <span class="svc-arrow">Explore &rarr;</span>
+    </a>
+    <a href="{% url 'what_we_do' %}" class="svc-card">
+      <span class="svc-num">04</span>
+      <div class="svc-icon-wrap">&#x1F4CA;</div>
+      <h3 class="svc-name">ManageEngine</h3>
+      <p class="svc-desc">Certified partner delivering unified IT management across networks, security, and operations.
+      </p>
+      <span class="svc-arrow">Explore &rarr;</span>
+    </a>
+    <a href="{% url 'what_we_do' %}" class="svc-card red">
+      <span class="svc-num">05</span>
+      <div class="svc-icon-wrap">&#x2601;&#xFE0F;</div>
+      <h3 class="svc-name">Zoho Solutions</h3>
+      <p class="svc-desc">Full-suite Zoho implementation — CRM, ERP, HR, and custom automation for enterprise workflows.
+      </p>
+      <span class="svc-arrow">Explore &rarr;</span>
+    </a>
+    <a href="{% url 'what_we_do' %}" class="svc-card">
+      <span class="svc-num">06</span>
+      <div class="svc-icon-wrap">&#x1F310;</div>
+      <h3 class="svc-name">Digital Marketing &amp; Brand</h3>
+      <p class="svc-desc">Enterprise-grade digital presence aligned to measurable business growth across channels and
+        markets.</p>
+      <span class="svc-arrow">Explore &rarr;</span>
+    </a>
+    <a href="{% url 'what_we_do' %}" class="svc-card red">
+      <span class="svc-num">07</span>
+      <div class="svc-icon-wrap">&#x1F465;</div>
+      <h3 class="svc-name">HR Support Services</h3>
+      <p class="svc-desc">Optimizing workforce operations across distributed environments with technology-enabled HR
+        systems.</p>
+      <span class="svc-arrow">Explore &rarr;</span>
+    </a>
+    <a href="{% url 'what_we_do' %}" class="svc-card">
+      <span class="svc-num">08</span>
+      <div class="svc-icon-wrap">&#x2699;&#xFE0F;</div>
+      <h3 class="svc-name">Business Process Outsourcing</h3>
+      <p class="svc-desc">Turning non-core functions into scalable, technology-enabled systems with measurable SLA
+        performance.</p>
+      <span class="svc-arrow">Explore &rarr;</span>
+    </a>
+    <a href="{% url 'what_we_do' %}" class="svc-card red">
+      <span class="svc-num">09</span>
+      <div class="svc-icon-wrap">&#x1F4BB;</div>
+      <h3 class="svc-name">Website Development</h3>
+      <p class="svc-desc">Positioning digital assets as operational infrastructure — performance-driven and
+        conversion-optimized.</p>
+      <span class="svc-arrow">Explore &rarr;</span>
+    </a>
     {% endfor %}
   </div>
 </section>
@@ -405,12 +415,12 @@
     <div class="who-right">
       <div class="who-img-stack">
         <div class="who-img-main">
-          <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80"
-               alt="Tranter team" loading="lazy">
+          <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80" alt="Tranter team"
+            loading="lazy">
         </div>
         <div class="who-img-accent">
-          <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=500&q=80"
-               alt="Technology operations" loading="lazy">
+          <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=500&q=80" alt="Technology operations"
+            loading="lazy">
         </div>
         <div class="who-tag-floating">
           <span class="wtf-num">15+</span>
@@ -435,28 +445,32 @@
           <div class="pillar-num g">01</div>
           <div>
             <div class="pillar-title">Global Delivery Model</div>
-            <div class="pillar-body">A flexible model combining remote expertise and on-site support to deliver consistent technology services across regions and time zones.</div>
+            <div class="pillar-body">A flexible model combining remote expertise and on-site support to deliver
+              consistent technology services across regions and time zones.</div>
           </div>
         </div>
         <div class="pillar red">
           <div class="pillar-num r">02</div>
           <div>
             <div class="pillar-title">Enterprise-Grade Operations</div>
-            <div class="pillar-body">Secure infrastructure, governed processes, and SLA-driven performance ensuring reliability and scalability at enterprise scale.</div>
+            <div class="pillar-body">Secure infrastructure, governed processes, and SLA-driven performance ensuring
+              reliability and scalability at enterprise scale.</div>
           </div>
         </div>
         <div class="pillar">
           <div class="pillar-num g">03</div>
           <div>
             <div class="pillar-title">Strategic Partner Mindset</div>
-            <div class="pillar-body">We collaborate with leadership teams to design and manage technology systems that drive long-term operational efficiency.</div>
+            <div class="pillar-body">We collaborate with leadership teams to design and manage technology systems that
+              drive long-term operational efficiency.</div>
           </div>
         </div>
         <div class="pillar red">
           <div class="pillar-num r">04</div>
           <div>
             <div class="pillar-title">Decades of Operational Depth</div>
-            <div class="pillar-body">Extensive experience designing, implementing, and managing enterprise technology across complex, regulated industries.</div>
+            <div class="pillar-body">Extensive experience designing, implementing, and managing enterprise technology
+              across complex, regulated industries.</div>
           </div>
         </div>
       </div>
@@ -527,12 +541,30 @@
     </p>
   </div>
   <div class="sectors-grid">
-    <div class="sector-card g"><div class="sector-icon">&#x1F3E6;</div><div class="sector-name">Financial Services</div></div>
-    <div class="sector-card r"><div class="sector-icon">&#x26A1;</div><div class="sector-name">Energy &amp; Industrial</div></div>
-    <div class="sector-card g"><div class="sector-icon">&#x1F3ED;</div><div class="sector-name">Manufacturing</div></div>
-    <div class="sector-card r"><div class="sector-icon">&#x1F69B;</div><div class="sector-name">Logistics &amp; Supply Chain</div></div>
-    <div class="sector-card g"><div class="sector-icon">&#x1F3E5;</div><div class="sector-name">Healthcare</div></div>
-    <div class="sector-card r"><div class="sector-icon">&#x1F393;</div><div class="sector-name">Education</div></div>
+    <div class="sector-card g">
+      <div class="sector-icon">&#x1F3E6;</div>
+      <div class="sector-name">Financial Services</div>
+    </div>
+    <div class="sector-card r">
+      <div class="sector-icon">&#x26A1;</div>
+      <div class="sector-name">Energy &amp; Industrial</div>
+    </div>
+    <div class="sector-card g">
+      <div class="sector-icon">&#x1F3ED;</div>
+      <div class="sector-name">Manufacturing</div>
+    </div>
+    <div class="sector-card r">
+      <div class="sector-icon">&#x1F69B;</div>
+      <div class="sector-name">Logistics &amp; Supply Chain</div>
+    </div>
+    <div class="sector-card g">
+      <div class="sector-icon">&#x1F3E5;</div>
+      <div class="sector-name">Healthcare</div>
+    </div>
+    <div class="sector-card r">
+      <div class="sector-icon">&#x1F393;</div>
+      <div class="sector-name">Education</div>
+    </div>
   </div>
 </section>
 
@@ -550,12 +582,14 @@
     <div class="process-step g">
       <div class="ps-circle">01</div>
       <div class="ps-title">Diagnose</div>
-      <div class="ps-desc">Executive-level discovery to understand business objectives, operational realities and transformation priorities.</div>
+      <div class="ps-desc">Executive-level discovery to understand business objectives, operational realities and
+        transformation priorities.</div>
     </div>
     <div class="process-step r">
       <div class="ps-circle">02</div>
       <div class="ps-title">Architect</div>
-      <div class="ps-desc">Design technology and operational systems aligned to strategic outcomes — not short-term fixes.</div>
+      <div class="ps-desc">Design technology and operational systems aligned to strategic outcomes — not short-term
+        fixes.</div>
     </div>
     <div class="process-step g">
       <div class="ps-circle">03</div>
@@ -616,8 +650,7 @@
   </div>
   <div class="insights-preview-grid">
     {% for article in insights %}
-    <a href="{% url 'insights' %}"
-       class="ins-card {% if forloop.first %}featured{% endif %}">
+    <a href="{% url 'insights' %}" class="ins-card {% if forloop.first %}featured{% endif %}">
       <div class="ins-card-img">
         <div class="ins-cat {% cycle 'g' 'r' 'g' %}">{{ article.category }}</div>
       </div>
@@ -642,23 +675,23 @@
       <span class="cta-eyebrow">Let&rsquo;s get started{% if is_nigeria %} in Nigeria{% endif %}</span>
       <h2 class="cta-title">
         {% if cta_content.text %}
-          {{ cta_content.text|safe }}
+        {{ cta_content.text|safe }}
         {% else %}
-          Ready to power your<br>next phase of growth?
+        Ready to power your<br>next phase of growth?
         {% endif %}
       </h2>
       <p class="cta-sub">
         {% if is_nigeria %}
-          Let&rsquo;s design the technology infrastructure your Nigerian business
-          deserves — built for scale, security, and the unique African market.
+        Let&rsquo;s design the technology infrastructure your Nigerian business
+        deserves — built for scale, security, and the unique African market.
         {% else %}
-          Let&rsquo;s design the technology infrastructure your business
-          deserves — built for scale, security, and the long term.
+        Let&rsquo;s design the technology infrastructure your business
+        deserves — built for scale, security, and the long term.
         {% endif %}
       </p>
     </div>
     <div class="cta-actions">
-      <a href="{% url 'contact' %}"  class="cta-btn-w">Book a Free Consultation &rarr;</a>
+      <a href="{% url 'contact' %}" class="cta-btn-w">Book a Free Consultation &rarr;</a>
       <a href="{% url 'what_we_do' %}" class="cta-btn-o">View All Services</a>
     </div>
   </div>
@@ -669,30 +702,31 @@
 <section class="section" id="clients">
   <div style="text-align:center; max-width:480px; margin:0 auto 56px">
     <div class="eyebrow red" style="justify-content:center">Client Portfolio</div>
-    <h2 class="section-title">Trusted by<br>{% if is_nigeria %}Nigeria's{% else %}Global{% endif %} Industry Leaders</h2>
+    <h2 class="section-title">Trusted by<br>{% if is_nigeria %}Nigeria's{% else %}Global{% endif %} Industry Leaders
+    </h2>
   </div>
   <div class="clients-grid">
     {% for client in clients %}
-      <div class="client-cell {% cycle '' 'r' '' 'r' '' 'r' %}">{{ client }}</div>
+    <div class="client-cell {% cycle '' 'r' '' 'r' '' 'r' %}">{{ client }}</div>
     {% empty %}
-      <div class="client-cell">GTBank</div>
-      <div class="client-cell r">Zenith Bank</div>
-      <div class="client-cell">FCMB</div>
-      <div class="client-cell r">UBA</div>
-      <div class="client-cell">FBNQuest</div>
-      <div class="client-cell r">Stanbic IBTC</div>
-      <div class="client-cell r">Fidelity Bank</div>
-      <div class="client-cell">Air Peace</div>
-      <div class="client-cell r">DBN</div>
-      <div class="client-cell">Bank of Industry</div>
-      <div class="client-cell r">Sterling Bank</div>
-      <div class="client-cell">Heritage Bank</div>
-      <div class="client-cell">Wema Bank</div>
-      <div class="client-cell r">Union Bank</div>
-      <div class="client-cell">Keystone Bank</div>
-      <div class="client-cell r">Jaiz Bank</div>
-      <div class="client-cell">TajBank</div>
-      <div class="client-cell r">FSDH Merchant</div>
+    <div class="client-cell">GTBank</div>
+    <div class="client-cell r">Zenith Bank</div>
+    <div class="client-cell">FCMB</div>
+    <div class="client-cell r">UBA</div>
+    <div class="client-cell">FBNQuest</div>
+    <div class="client-cell r">Stanbic IBTC</div>
+    <div class="client-cell r">Fidelity Bank</div>
+    <div class="client-cell">Air Peace</div>
+    <div class="client-cell r">DBN</div>
+    <div class="client-cell">Bank of Industry</div>
+    <div class="client-cell r">Sterling Bank</div>
+    <div class="client-cell">Heritage Bank</div>
+    <div class="client-cell">Wema Bank</div>
+    <div class="client-cell r">Union Bank</div>
+    <div class="client-cell">Keystone Bank</div>
+    <div class="client-cell r">Jaiz Bank</div>
+    <div class="client-cell">TajBank</div>
+    <div class="client-cell r">FSDH Merchant</div>
     {% endfor %}
   </div>
 </section>
